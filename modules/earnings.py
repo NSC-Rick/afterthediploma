@@ -69,7 +69,14 @@ def pathway_wages(careers: pd.DataFrame, wages: pd.DataFrame) -> pd.DataFrame:
                 "data_status": w["data_status"],
             }
         )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(
+        rows,
+        columns=[
+            "soc_code", "title", "pathway", "wage_geographic_scope",
+            "entry_proxy", "median_annual", "experienced_proxy",
+            "pct10", "pct90", "source", "reporting_period", "data_status",
+        ],
+    )
 
 
 def wage_range_summary(pathway_wage_df: pd.DataFrame) -> tuple[int | None, int | None]:

@@ -339,6 +339,9 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
                  "Entry proxy = 25th percentile; experienced proxy = 75th percentile. "
                  "A percentile is a wage-distribution position, not a guaranteed wage.",
                  st["small"])]
+    wages_df = wages_df.assign(
+        median_annual=pd.to_numeric(wages_df["median_annual"], errors="coerce")
+    )
     chart_src = wages_df.dropna(subset=["median_annual"]).nlargest(8, "median_annual")
     if len(chart_src):
         story.append(Image(_bar_chart(

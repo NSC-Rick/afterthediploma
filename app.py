@@ -617,6 +617,22 @@ def page_select():
         st.caption(f"· {e}")
 
 
+def _pathway_tooltips(careers_df: pd.DataFrame) -> list[str]:
+    """One multiline tooltip per pathway category: every career title with
+    its alignment score, built dynamically from the active analysis."""
+    out = []
+    for p in ("primary", "adjacent", "extended"):
+        sub = careers_df[careers_df.pathway == p].sort_values(
+            "compatibility_score", ascending=False
+        )
+        lines = "<br>".join(
+            f"{r['title']} — {r['compatibility_score']}/100"
+            for _, r in sub.iterrows()
+        )
+        out.append(lines or "No pathways")
+    return out
+
+
 def page_dashboard():
     if not require_analysis():
         return
@@ -676,6 +692,7 @@ def page_dashboard():
     )
     st.markdown("##### Pathways by category")
     counts = ca.groupby("pathway").size().reindex(["primary", "adjacent", "extended"]).fillna(0)
+    tooltips = _pathway_tooltips(ca)
     fig = px.bar(
         x=[careers.PATHWAY_LABELS[p] for p in counts.index],
         y=counts.values,
@@ -687,8 +704,21 @@ def page_dashboard():
             "extended": "#7c3aed",
         },
     )
+    fig.update_traces(
+        customdata=tooltips,
+        hovertemplate=(
+            "<b>%{x}</b><br>Pathways: %{y}<br><br>%{customdata}<extra></extra>"
+        ),
+    )
     fig.update_layout(showlegend=False, height=260, margin=dict(t=10, b=10))
     st.plotly_chart(fig, width="stretch")
+    st.selectbox(
+        "Jump to detailed pathway view",
+        ["", *counts.index],
+        key="dash-jump",
+        format_func=lambda v: "Select a category…" if not v else careers.PATHWAY_LABELS[v],
+        on_change=lambda: st.session_state.update({"nav": "2 · Career Pathways"}),
+    )
 
     st.markdown(
         '<div class="caveat">All compatibility scores are indicative, not validated employment '

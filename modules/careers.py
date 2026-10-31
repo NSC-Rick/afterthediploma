@@ -87,6 +87,9 @@ def match_occupations(
         )
 
     out = pd.DataFrame(rows)
+    # An occupation with zero skill overlap is not a pathway for this
+    # curriculum - exclude non-matches rather than display 0/100 rows.
+    out = out[out.compatibility_score > 0]
     out["_o"] = out["pathway"].map(PATHWAY_ORDER)
     return (
         out.sort_values(["_o", "compatibility_score"], ascending=[True, False])
