@@ -36,10 +36,25 @@ def match_occupations(
     """Score every occupation in the dataset against the extracted skills."""
     presence = skill_presence(skills_df)
     id_to_name = skills_df.drop_duplicates("skill_id").set_index("skill_id")["skill_name"]
+    # Transferable skills alone never qualify an occupation as a pathway -
+    # eligibility requires at least one *technical* (non-transferable)
+    # required skill present in the curriculum. This keeps cross-industry
+    # noise (e.g. welding occupations under an LNA program) out while
+    # preserving legitimate progressions that share real competencies.
+    transferable_ids = set(
+        skills_df.loc[skills_df["category"] == "transferable", "skill_id"]
+    )
 
     rows = []
     for _, occ in occupations.iterrows():
         required = [s.strip() for s in str(occ["required_skills"]).split(";") if s.strip()]
+        technical_reqs = [s for s in required if s not in transferable_ids]
+        eligible = any(
+            presence.get(sid) in (STATUS_DOCUMENTED, STATUS_INFERRED)
+            for sid in technical_reqs
+        )
+        if not eligible:
+            continue  # no credible occupational relationship - not scored
         matched_doc, matched_inf, missing = [], [], []
         total = 0.0
         earned = 0.0
@@ -86,7 +101,11 @@ def match_occupations(
             }
         )
 
-    out = pd.DataFrame(rows)
+    cols = ["soc_code", "title", "pathway", "compatibility_score", "readiness",
+            "matched_documented", "matched_inferred", "missing_skills",
+            "n_required", "n_documented", "n_inferred", "training_notes",
+            "why_relevant"]
+    out = pd.DataFrame(rows, columns=cols)
     # An occupation with zero skill overlap is not a pathway for this
     # curriculum - exclude non-matches rather than display 0/100 rows.
     out = out[out.compatibility_score > 0]

@@ -8,7 +8,7 @@ plasma_cutting,Plasma cutting,core,plasma cut|plasma arc|plasma torch,true
 blueprint_reading,Blueprint reading,core,blueprint|blue print|drawing interpretation|welding drawing|shop drawing|scale drawing|technical drawing,false
 weld_symbols,Weld symbol interpretation,core,weld symbol|welding symbol|aws symbol,false
 material_preparation,Material preparation,core,material prep|metal prep|joint prep|surface prep|fit[- ]?up|edge prep,false
-measuring_layout,Measuring and layout,core,measur|layout|tape measure|calipers|squaring,false
+measuring_layout,Measuring and layout,core,measuring|layout|tape measure|calipers|squaring,false
 welding_safety,Welding safety,core,welding safety|safety procedure|osha|ppe|personal protective|fire prevention|fume|ventilation,false
 welding_positions,Welding positions and joint types,core,fillet|groove weld|flat position|horizontal position|vertical position|overhead|1g|2g|3g|4g|butt joint|false
 grinding_finishing,Grinding and metal finishing,core,grind|finishing|deburr|wire wheel|sanding,false
@@ -25,7 +25,7 @@ workplace_safety,General workplace safety,transferable,workplace safety|shop saf
 attention_to_detail,Attention to detail and quality mindset,transferable,attention to detail|precision|accuracy|workmanship|quality mindset|pride in|false
 time_management,Time management and work ethic,transferable,time management|punctual|attendance|work ethic|deadline|professional,false
 cnc_operation,CNC machine operation,adjacent,cnc|computer numerical|machining center|g[- ]?code|programmed machine,true
-cad_basics,CAD and digital design basics,adjacent,cad|computer[- ]?aided design|autocad|solidworks|drafting|3d model|digital design,true
+cad_basics,CAD and digital design basics,adjacent,bcadb|computer[- ]?aided design|autocad|solidworks|drafting|3d model|digital design,true
 industrial_maintenance,Industrial maintenance fundamentals,adjacent,industrial maint|maintenance tech|hydraulic|pneumatic|motor|bearing|lubricat|belt drive|pump,true
 electrical_fundamentals,Electrical fundamentals,adjacent,electrical|circuit|voltage|wiring|motor control|plc,true
 mechanical_assembly,Mechanical assembly,adjacent,mechanical assembly|assembly line|bolt|fastener|subassembly|assemble components,true
@@ -34,7 +34,7 @@ robotics_automation,Robotics and automation awareness,adjacent,robot|automation|
 material_handling,Material handling and rigging,adjacent,forklift|rigging|overhead crane|hoist|material handling|overhead lift,true
 welding_inspection,Welding inspection (CWI pathway),adjacent,cwi|certified welding inspector|weld inspection|inspection standard|acceptance criteria,true
 patient_care,Basic patient care,core,patient care|basic nursing|nursing care,false
-personal_care_assistance,Personal care assistance (ADLs),core,activities of daily living|bathing|dressing|toileting|adl,false
+personal_care_assistance,Personal care assistance (ADLs),core,activities of daily living|bathing|dressing|toileting|badlb,false
 vital_signs,Vital signs measurement,core,vital signs|blood pressure|pulse|temperature|respirat,false
 patient_safety,Patient safety,supporting,patient safety|fall prevention|safe patient handling|body mechanics,false
 patient_communication,Patient and family communication,supporting,patient communication|family communication|compassion|bedside manner,false

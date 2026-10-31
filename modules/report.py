@@ -238,7 +238,12 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
 
     n_doc = int((skills_df.status == "documented").sum())
     n_inf = int((skills_df.status == "inferred").sum())
-    top_paths = careers_df[careers_df.pathway == "primary"].nlargest(1, "compatibility_score")
+    top_paths = careers_df.assign(
+        compatibility_score=pd.to_numeric(
+            careers_df["compatibility_score"], errors="coerce")
+    )
+    top_paths = top_paths[top_paths.pathway == "primary"].nlargest(
+        1, "compatibility_score")
     story += [
         _p("Executive summary", st["h1"]),
         _p(
