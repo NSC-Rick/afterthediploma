@@ -1,0 +1,115 @@
+{
+  "scp_version": "1.0",
+  "profile_id": "LI-WELD-001",
+  "institution": {
+    "name": "Lyndon Institute",
+    "location": "168 Institute Circle, Lyndon Center, VT 05850",
+    "institution_type": "Private approved independent town academy, grades 9-12",
+    "website": "https://www.lyndoninstitute.org"
+  },
+  "program": {
+    "name": "Welding (Career & Technical Education)",
+    "cip_code": null,
+    "level": "Secondary CTE program",
+    "description": "Students learn to fuse different types of metals. Welding and cutting processes are implemented in a real-world shop setting utilizing state-of-the-art welding equipment, such as a Virtual Welder, and plasma cutting equipment. Students assess and evaluate welds through nondestructive and metallurgical destructive test methods. First year covers basic welding skills; second year covers advanced welding skills and sheet metal work.",
+    "duration": "Described as a first-year and second-year sequence; total length not formally specified on the public page",
+    "instructional_hours": null
+  },
+  "source": {
+    "source_type": "public_program_description",
+    "title": "Lyndon Institute - Career & Technical Education: Welding",
+    "url": "https://www.lyndoninstitute.org/career-and-technical-education/welding",
+    "retrieved_date": "2026-10-31",
+    "notes": "Public program description retrieved from lyndoninstitute.org. This is a summary-level public description and does NOT represent the complete instructional curriculum.",
+    "original_text": "In this course, students will learn to fuse different types of metals. Welding and cutting processes will be implemented in a real-world shop setting utilizing state-of-the-art welding equipment, such as a Virtual Welder, and plasma cutting equipment. They will be able to assess and evaluate their welds through nondestructive and metallurgical destructive test methods.\n\nThe first year welding students are introduced to basic welding skills in gas welding, brazing, soldering, oxygen cutting and stick arc welding. Measuring tools are introduced and include squares, micrometers, calipers, protractors and compasses. Students learn skills in scale drawing and design work, the properties of metals, the use of work orders, inventory sheets, materials lists and estimation of cost sheets.\n\nSecond year welding students learn advanced welding skills in MIG, TIG and Thermo Plastic welding, along with skill building in sheet metal work. The sheet metal work includes hands-on operation of metal brakes, squaring shears, power shears, roller punches and hand tools, with layout work and blueprint reading.\n\nUpon successful completion of this program, students can earn their AWSD 1.1 Structural Steel Qualification for both vertical and overhead welding. Students will be able to take nationally recognized welder qualification tests (certifications) in accordance with the American Welding Society and the American National Standards Institute.\n\nStudents enrolled in many of the CTE programs automatically earn college credit for their work. In partnership with the Community College of Vermont (CCV), students graduate from their CTE program with the credits from two or more courses, which can be transferred to any accredited college in the US.",
+    "evidence": [
+      {"field": "program.description", "quote": "students will learn to fuse different types of metals. Welding and cutting processes will be implemented in a real-world shop setting utilizing state-of-the-art welding equipment, such as a Virtual Welder, and plasma cutting equipment."},
+      {"field": "instructional_units[0]", "quote": "The first year welding students are introduced to basic welding skills in gas welding, brazing, soldering, oxygen cutting and stick arc welding."},
+      {"field": "instructional_units[1]", "quote": "Second year welding students learn advanced welding skills in MIG, TIG and Thermo Plastic welding, along with skill building in sheet metal work."},
+      {"field": "skills[measuring_layout]", "quote": "Measuring tools are introduced and include squares, micrometers, calipers, protractors and compasses."},
+      {"field": "skills[blueprint_reading]", "quote": "with layout work and blueprint reading."},
+      {"field": "credentials[0]", "quote": "students can earn their AWSD 1.1 Structural Steel Qualification for both vertical and overhead welding."},
+      {"field": "credentials[2]", "quote": "In partnership with the Community College of Vermont (CCV), students graduate from their CTE program with the credits from two or more courses"}
+    ]
+  },
+  "instructional_units": [
+    {
+      "title": "Year 1 - Foundational welding skills",
+      "description": "Basic welding skills in gas welding, brazing, soldering, oxygen cutting and stick arc welding. Measuring tools: squares, micrometers, calipers, protractors and compasses. Scale drawing and design work, properties of metals, work orders, inventory sheets, materials lists and estimation of cost sheets.",
+      "sequence": 1,
+      "hours": null,
+      "source_evidence": "The first year welding students are introduced to basic welding skills in gas welding, brazing, soldering, oxygen cutting and stick arc welding."
+    },
+    {
+      "title": "Year 2 - Advanced welding and sheet metal work",
+      "description": "Advanced welding skills in MIG, TIG and Thermo Plastic welding. Sheet metal work: metal brakes, squaring shears, power shears, roller punches and hand tools, with layout work and blueprint reading.",
+      "sequence": 2,
+      "hours": null,
+      "source_evidence": "Second year welding students learn advanced welding skills in MIG, TIG and Thermo Plastic welding, along with skill building in sheet metal work."
+    }
+  ],
+  "learning_outcomes": [
+    {
+      "outcome": "Fuse different types of metals using welding and cutting processes in a real-world shop setting.",
+      "source_evidence": "students will learn to fuse different types of metals"
+    },
+    {
+      "outcome": "Assess and evaluate welds using nondestructive and metallurgical destructive test methods.",
+      "source_evidence": "assess and evaluate their welds through nondestructive and metallurgical destructive test methods"
+    },
+    {
+      "outcome": "Apply precision measuring tools (squares, micrometers, calipers, protractors, compasses) to shop work.",
+      "source_evidence": "Measuring tools are introduced and include squares, micrometers, calipers, protractors and compasses"
+    },
+    {
+      "outcome": "Produce scale drawings, design work, and cost-estimation documents.",
+      "source_evidence": "skills in scale drawing and design work, the properties of metals, the use of work orders, inventory sheets, materials lists and estimation of cost sheets"
+    },
+    {
+      "outcome": "Read blueprints and perform layout work in sheet metal fabrication.",
+      "source_evidence": "with layout work and blueprint reading"
+    },
+    {
+      "outcome": "Qualify to attempt nationally recognized welder qualification tests in accordance with AWS and ANSI upon program completion.",
+      "source_evidence": "able to take nationally recognized welder qualification tests (certifications) in accordance with the American Welding Society and the American National Standards Institute"
+    }
+  ],
+  "skills": [
+    {"skill": "Stick welding (SMAW)", "skill_id": "stick_welding", "category": "core", "status": "documented", "proficiency_level": "introductory", "evidence": "basic welding skills in ... stick arc welding", "notes": "Source describes year-1 skills as 'basic' - mapped to introductory."},
+    {"skill": "Gas welding, brazing and soldering (oxy-fuel)", "skill_id": "oxyfuel_cutting", "category": "core", "status": "documented", "proficiency_level": "introductory", "evidence": "basic welding skills in gas welding, brazing, soldering, oxygen cutting", "notes": "Oxy-fuel family processes; source describes as 'basic'."},
+    {"skill": "Plasma cutting", "skill_id": "plasma_cutting", "category": "core", "status": "documented", "proficiency_level": "unknown", "evidence": "state-of-the-art welding equipment, such as a Virtual Welder, and plasma cutting equipment", "notes": ""},
+    {"skill": "MIG welding (GMAW)", "skill_id": "mig_welding", "category": "core", "status": "documented", "proficiency_level": "advanced", "evidence": "advanced welding skills in MIG", "notes": "Source describes year-2 skills as 'advanced'."},
+    {"skill": "TIG welding (GTAW)", "skill_id": "tig_welding", "category": "core", "status": "documented", "proficiency_level": "advanced", "evidence": "advanced welding skills in MIG, TIG", "notes": "Source describes year-2 skills as 'advanced'."},
+    {"skill": "Thermo Plastic welding", "skill_id": "thermo_plastic_welding", "category": "core", "status": "documented", "proficiency_level": "advanced", "evidence": "Thermo Plastic welding", "notes": "Named in source; no taxonomy entry."},
+    {"skill": "Measuring and layout", "skill_id": "measuring_layout", "category": "core", "status": "documented", "proficiency_level": "introductory", "evidence": "squares, micrometers, calipers, protractors and compasses ... layout work", "notes": ""},
+    {"skill": "Blueprint reading", "skill_id": "blueprint_reading", "category": "core", "status": "documented", "proficiency_level": "advanced", "evidence": "with layout work and blueprint reading", "notes": ""},
+    {"skill": "Welding positions (vertical and overhead)", "skill_id": "welding_positions", "category": "core", "status": "documented", "proficiency_level": "advanced", "evidence": "Qualification for both vertical and overhead welding", "notes": ""},
+    {"skill": "Basic metallurgy", "skill_id": "metallurgy_basics", "category": "supporting", "status": "documented", "proficiency_level": "introductory", "evidence": "the properties of metals ... metallurgical destructive test methods", "notes": ""},
+    {"skill": "Quality inspection (NDT and destructive testing)", "skill_id": "quality_inspection", "category": "supporting", "status": "documented", "proficiency_level": "unknown", "evidence": "assess and evaluate their welds through nondestructive and metallurgical destructive test methods", "notes": ""},
+    {"skill": "Hand and power tools (sheet metal equipment)", "skill_id": "hand_power_tools", "category": "supporting", "status": "documented", "proficiency_level": "advanced", "evidence": "metal brakes, squaring shears, power shears, roller punches and hand tools", "notes": ""},
+    {"skill": "Fabrication - sheet metal work", "skill_id": "fabrication_fitting", "category": "supporting", "status": "documented", "proficiency_level": "advanced", "evidence": "skill building in sheet metal work", "notes": ""},
+    {"skill": "Shop mathematics / cost estimation", "skill_id": "shop_math", "category": "supporting", "status": "documented", "proficiency_level": "introductory", "evidence": "materials lists and estimation of cost sheets", "notes": ""},
+    {"skill": "Welding safety", "skill_id": "welding_safety", "category": "core", "status": "unknown", "proficiency_level": "unknown", "evidence": "", "notes": "Not mentioned in the public description. Almost certainly taught in any welding program, but the source does not document it."},
+    {"skill": "Teamwork", "skill_id": "teamwork", "category": "transferable", "status": "unknown", "proficiency_level": "unknown", "evidence": "", "notes": "Not mentioned in the public description."},
+    {"skill": "Communication", "skill_id": "communication", "category": "transferable", "status": "unknown", "proficiency_level": "unknown", "evidence": "", "notes": "Not mentioned in the public description."},
+    {"skill": "CNC machine operation", "skill_id": "cnc_operation", "category": "adjacent", "status": "recommended", "proficiency_level": "unknown", "evidence": "", "notes": "Suggested addition - not mentioned in source; commonly requested by regional manufacturing employers."},
+    {"skill": "CAD / digital blueprint basics", "skill_id": "cad_basics", "category": "adjacent", "status": "recommended", "proficiency_level": "unknown", "evidence": "", "notes": "Suggested addition - extends documented blueprint reading into digital workflows."}
+  ],
+  "credentials": [
+    {"name": "AWS D1.1 Structural Steel Qualification (vertical and overhead)", "type": "Industry welder qualification", "status": "documented", "evidence": "students can earn their AWSD 1.1 Structural Steel Qualification for both vertical and overhead welding"},
+    {"name": "Nationally recognized welder qualification tests (AWS / ANSI)", "type": "Industry certification eligibility", "status": "documented", "evidence": "able to take nationally recognized welder qualification tests (certifications) in accordance with the American Welding Society and the American National Standards Institute"},
+    {"name": "CCV dual-enrollment college credits (two or more courses)", "type": "College credit", "status": "documented", "evidence": "In partnership with the Community College of Vermont (CCV), students graduate from their CTE program with the credits from two or more courses"}
+  ],
+  "assessments": [
+    {"name": "Welder qualification tests (certification attempt)", "type": "Certification / qualification test", "status": "documented", "evidence": "able to take nationally recognized welder qualification tests (certifications)"},
+    {"name": "Weld evaluation via nondestructive and destructive test methods", "type": "Instructional assessment method", "status": "documented", "evidence": "assess and evaluate their welds through nondestructive and metallurgical destructive test methods"}
+  ],
+  "metadata": {
+    "created_date": "2026-10-31",
+    "last_modified": "2026-10-31",
+    "editor": "Devin (automated profile construction from public source)",
+    "review_status": "draft",
+    "data_status": "Verified source data (public program description) - structured fields derived from quoted source; details not present in the source are marked unknown",
+    "notes": "Awaiting educator review. A public program description does not represent the complete instructional curriculum."
+  }
+}

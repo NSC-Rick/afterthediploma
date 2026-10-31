@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: afterthediploma
+    runtime: python
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true
+    healthCheckPath: /_stcore/health
+    autoDeploy: true

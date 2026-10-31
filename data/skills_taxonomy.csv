@@ -1,0 +1,35 @@
+skill_id,skill_name,category,keywords,recommend_if_missing
+mig_welding,MIG welding (GMAW),core,mig|gmaw|gas metal arc|wire feed,false
+tig_welding,TIG welding (GTAW),core,tig|gtaw|gas tungsten arc|heliarc,false
+stick_welding,Stick welding (SMAW),core,stick|smaw|shielded metal arc|arc welding,false
+fcaw_welding,Flux-cored welding (FCAW),core,flux[- ]?cored|fcaw,true
+oxyfuel_cutting,Oxy-fuel cutting and gas welding,core,oxy[- ]?fuel|oxy[- ]?acetylene|oxygen cut|torch cutting|cutting torch|gas welding|brazing|soldering,false
+plasma_cutting,Plasma cutting,core,plasma cut|plasma arc|plasma torch,true
+blueprint_reading,Blueprint reading,core,blueprint|blue print|drawing interpretation|welding drawing|shop drawing|scale drawing|technical drawing,false
+weld_symbols,Weld symbol interpretation,core,weld symbol|welding symbol|aws symbol,false
+material_preparation,Material preparation,core,material prep|metal prep|joint prep|surface prep|fit[- ]?up|edge prep,false
+measuring_layout,Measuring and layout,core,measur|layout|tape measure|calipers|squaring,false
+welding_safety,Welding safety,core,welding safety|safety procedure|osha|ppe|personal protective|fire prevention|fume|ventilation,false
+welding_positions,Welding positions and joint types,core,fillet|groove weld|flat position|horizontal position|vertical position|overhead|1g|2g|3g|4g|butt joint|false
+grinding_finishing,Grinding and metal finishing,core,grind|finishing|deburr|wire wheel|sanding,false
+fabrication_fitting,Fabrication and fitting,supporting,fabricat|fitting|fixture|jig|assembly project|weldment|sheet metal,false
+shop_math,Shop mathematics,supporting,shop math|math|fraction|decimal|angle|geometry|calculation|tolerance|estimat|cost sheet|materials list,false
+quality_inspection,Quality inspection,supporting,quality|inspect|visual inspection|defect|ndt|nondestructive|weld test,false
+equipment_setup_maintenance,Equipment setup and maintenance,supporting,equipment maint|machine setup|equipment setup|maintain equipment|preventive maint|troubleshoot equipment,false
+metallurgy_basics,Basic metallurgy,supporting,metallurg|heat affect|metal propert|carbon steel|stainless|aluminum weld|alloy,false
+hand_power_tools,Hand and power tools,supporting,hand tool|power tool|grinder|drill press|band ?saw|shear|brake press|punch,false
+troubleshooting,Troubleshooting and problem-solving,transferable,troubleshoot|problem[- ]?solv|diagnos|root cause|critical think,false
+communication,Communication,transferable,communicat|teamwork|collaborat|interpersonal|report writing|documentation,false
+teamwork,Teamwork and collaboration,transferable,teamwork|team project|collaborat|group project|partner|false
+workplace_safety,General workplace safety,transferable,workplace safety|shop safety|hazard|lockout|safety regulation|safety standard,false
+attention_to_detail,Attention to detail and quality mindset,transferable,attention to detail|precision|accuracy|workmanship|quality mindset|pride in|false
+time_management,Time management and work ethic,transferable,time management|punctual|attendance|work ethic|deadline|professional,false
+cnc_operation,CNC machine operation,adjacent,cnc|computer numerical|machining center|g[- ]?code|programmed machine,true
+cad_basics,CAD and digital design basics,adjacent,cad|computer[- ]?aided design|autocad|solidworks|drafting|3d model|digital design,true
+industrial_maintenance,Industrial maintenance fundamentals,adjacent,industrial maint|maintenance tech|hydraulic|pneumatic|motor|bearing|lubricat|belt drive|pump,true
+electrical_fundamentals,Electrical fundamentals,adjacent,electrical|circuit|voltage|wiring|motor control|plc,true
+mechanical_assembly,Mechanical assembly,adjacent,mechanical assembly|assembly line|bolt|fastener|subassembly|assemble components,true
+machining_basics,Machining basics,adjacent,machining|lathe|milling|drill press|machine shop|manual machin,true
+robotics_automation,Robotics and automation awareness,adjacent,robot|automation|cobot|programmable|automated weld,true
+material_handling,Material handling and rigging,adjacent,forklift|rigging|overhead crane|hoist|material handling|overhead lift,true
+welding_inspection,Welding inspection (CWI pathway),adjacent,cwi|certified welding inspector|weld inspection|inspection standard|acceptance criteria,true

@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NSC-Rick/afterthediploma/data/scp_schema.json",
+  "title": "Standard Curriculum Profile (SCP)",
+  "version": "1.0",
+  "type": "object",
+  "required": ["scp_version", "profile_id", "institution", "program", "source", "skills", "metadata"],
+  "properties": {
+    "scp_version": {"type": "string", "const": "1.0"},
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9-]*$",
+      "description": "Stable unique identifier, e.g. LI-WELD-001"
+    },
+    "institution": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "location": {"type": "string"},
+        "institution_type": {"type": "string"},
+        "website": {"type": "string"}
+      }
+    },
+    "program": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "cip_code": {"type": ["string", "null"]},
+        "level": {"type": "string", "description": "e.g. secondary CTE, grades 9-12"},
+        "description": {"type": "string"},
+        "duration": {"type": "string"},
+        "instructional_hours": {"type": ["number", "null"],
+          "description": "Total documented instructional hours. Null when not documented - never invented."}
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["source_type"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["complete_curriculum", "course_catalog", "public_program_description", "manual_entry", "uploaded_document"]
+        },
+        "title": {"type": "string"},
+        "url": {"type": "string"},
+        "retrieved_date": {"type": "string"},
+        "notes": {"type": "string"},
+        "original_text": {"type": "string",
+          "description": "Verbatim source text, preserved separately from generated analysis."},
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["field", "quote"],
+            "properties": {
+              "field": {"type": "string", "description": "SCP field this quote supports"},
+              "quote": {"type": "string", "description": "Verbatim source excerpt"}
+            }
+          }
+        }
+      }
+    },
+    "instructional_units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {"type": "string"},
+          "description": {"type": "string"},
+          "sequence": {"type": ["integer", "null"]},
+          "hours": {"type": ["number", "null"],
+            "description": "Null when not documented - never estimated."},
+          "source_evidence": {"type": "string"}
+        }
+      }
+    },
+    "learning_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["outcome"],
+        "properties": {
+          "outcome": {"type": "string"},
+          "source_evidence": {"type": "string"}
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["skill", "status"],
+        "properties": {
+          "skill": {"type": "string"},
+          "skill_id": {"type": "string",
+            "description": "Taxonomy id when the skill maps to the bundled taxonomy; otherwise a slug."},
+          "category": {"type": "string",
+            "enum": ["core", "supporting", "transferable", "adjacent", "unknown"]},
+          "status": {"type": "string",
+            "enum": ["documented", "inferred", "unknown", "recommended"],
+            "description": "documented = explicit in source; inferred = implied, not confirmed; unknown = cannot be determined from source; recommended = suggested addition."},
+          "proficiency_level": {"type": "string",
+            "enum": ["awareness", "introductory", "competent", "advanced", "unknown"],
+            "description": "From source only. 'unknown' unless the source states a level."},
+          "evidence": {"type": "string"},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "credentials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"type": "string", "description": "e.g. industry certification, college credit"},
+          "status": {"type": "string", "enum": ["documented", "inferred", "unknown"]},
+          "evidence": {"type": "string"}
+        }
+      }
+    },
+    "assessments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "status": {"type": "string", "enum": ["documented", "inferred", "unknown"]},
+          "evidence": {"type": "string"}
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["created_date", "data_status"],
+      "properties": {
+        "created_date": {"type": "string"},
+        "last_modified": {"type": "string"},
+        "editor": {"type": "string"},
+        "review_status": {"type": "string",
+          "enum": ["draft", "educator_reviewed", "verified"]},
+        "data_status": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    }
+  },
+  "additionalProperties": false
+}

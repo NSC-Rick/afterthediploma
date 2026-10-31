@@ -1,0 +1,8 @@
+streamlit>=1.36,<2
+pandas>=2.2,<3
+plotly>=5.22,<6
+PyMuPDF>=1.24.7
+python-docx>=1.1.2
+openai>=1.40
+jsonschema>=4.23
+pytest>=8.2

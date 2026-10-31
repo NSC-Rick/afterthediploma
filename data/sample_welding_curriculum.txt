@@ -1,0 +1,73 @@
+========================================================================
+REPRESENTATIVE SAMPLE CURRICULUM - FOR DEMONSTRATION ONLY
+========================================================================
+This is a fictional, representative high-school CTE welding curriculum
+created for demonstration of the After the Diploma application. It is
+NOT an official Lyndon Institute document, and it does not represent
+the actual content, sequence, or requirements of any real program.
+Any resemblance to an actual curriculum is coincidental.
+========================================================================
+
+PROGRAM: Welding and Metal Fabrication Technology (Grades 10-12)
+
+PROGRAM OVERVIEW
+Students develop entry-level welding and metal fabrication skills
+through a combination of classroom instruction and hands-on shop
+practice. The program emphasizes safe work habits, blueprint literacy,
+and proficiency in the major arc welding processes used in
+manufacturing, construction, and repair industries.
+
+COURSE SEQUENCE
+
+WELDING I - Introduction to Welding and Shop Safety (Grade 10)
+- Shop safety procedures, personal protective equipment (PPE),
+  fire prevention, ventilation and fume control
+- OSHA 10-Hour General Industry awareness training
+- Introduction to oxy-fuel cutting and torch operation
+- Introduction to shielded metal arc welding (SMAW / stick welding)
+  in the flat and horizontal positions
+- Basic weld joints: butt, lap, tee, and corner joints
+- Hand and power tool use: grinders, drills, band saw, shear
+- Material preparation, cleaning, and fit-up fundamentals
+
+WELDING II - Arc Welding Processes and Blueprint Reading (Grade 11)
+- Gas metal arc welding (GMAW / MIG) on carbon steel in all positions
+- Gas tungsten arc welding (GTAW / TIG) fundamentals on steel and
+  aluminum
+- Blueprint reading and welding drawing interpretation
+- AWS weld symbols and joint geometry terminology
+- Measuring and layout: tape measure, combination square, calipers
+- Shop mathematics: fractions, decimals, angles, and tolerances
+- Introduction to metallurgy: carbon steel, stainless steel,
+  aluminum, and heat-affected zone basics
+- Plasma cutting and basic fabrication techniques
+
+WELDING III - Fabrication, Quality, and Career Preparation (Grade 12)
+- Flux-cored arc welding (FCAW) and out-of-position welding
+- Fabrication project: design, layout, cut, fit, and weld a
+  student-designed weldment to specification
+- Visual weld inspection, defect identification, and weld quality
+  standards
+- Equipment setup, maintenance, and troubleshooting of welding
+  power sources and wire feeders
+- Team-based fabrication projects emphasizing teamwork and
+  communication
+- Resume development, interview skills, and workplace
+  professionalism
+- Optional work-based learning placement with a regional employer
+- Opportunity to attempt an AWS welder performance qualification
+  test (program goal; certification not guaranteed)
+
+EMBEDDED SKILLS AND COMPETENCIES
+- Welding safety and regulatory awareness (PPE, hot work, OSHA)
+- Weld quality inspection and workmanship standards
+- Troubleshooting equipment and process problems
+- Reading and interpreting technical drawings and weld symbols
+- Precision measurement and applied shop mathematics
+- Collaboration on multi-student fabrication projects
+- Attention to detail, pride in workmanship, and time management
+
+NOTE ON PROGRAM ALIGNMENT
+This representative curriculum is loosely aligned with the AWS SENSE
+(Schools Excelling through National Skills Education) framework used
+by many secondary welding programs. Alignment is illustrative only.
