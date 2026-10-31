@@ -8,8 +8,6 @@ from pathlib import Path
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from modules import scp
-
 APP = str(Path(__file__).resolve().parent.parent / "app.py")
 
 PRE_OPTIONS = {"Home", "Select Curriculum", "Curriculum Library", "Data & Methodology"}
@@ -21,12 +19,6 @@ MODULE_OPTIONS = {
     "4 · Earnings Intelligence",
     "5 · Curriculum Advisor",
 }
-
-
-@pytest.fixture(autouse=True)
-def _no_disk_writes(monkeypatch):
-    """App flows save profiles via scp.save_profile - keep tests off disk."""
-    monkeypatch.setattr(scp, "save_profile", lambda *a, **k: None)
 
 
 def _app() -> AppTest:

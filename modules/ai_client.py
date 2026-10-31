@@ -16,6 +16,7 @@ import os
 from typing import Any
 
 DEFAULT_MODEL = "gpt-4o-mini"
+PROMPT_VERSION = "1.0"  # bump when the extraction prompt or schema changes
 TIMEOUT_SECONDS = 45
 MAX_CHARS = 60_000  # stay well inside context limits
 

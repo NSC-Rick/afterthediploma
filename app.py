@@ -5,6 +5,9 @@ Connecting education, skills, and regional opportunity.
 
 from __future__ import annotations
 
+import hashlib
+from datetime import datetime
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -138,7 +141,6 @@ def init_state():
     st.session_state.curriculum_text = ""
     st.session_state.curriculum_label = ""
     st.session_state.curriculum_version = 0
-    st.session_state.last_run_version = -1
     st.session_state.use_ai = False
     st.session_state.geo_ref = dict(DEFAULT_GEO_REF)
     st.session_state.initialized = True
@@ -147,56 +149,114 @@ def init_state():
 init_state()
 
 
-def run_analysis(use_ai: bool) -> str | None:
-    """Run the skill + career pipeline; returns a warning string or None."""
+def analysis_fingerprint() -> str:
+    """Invalidation key: curriculum, profile, model, prompt + schema versions,
+    and whether AI enhancement is enabled. Any change => fresh analysis."""
+    parts = [
+        st.session_state.curriculum_text,
+        st.session_state.get("active_profile_id") or "",
+        ai_client.configured_model() if ai_client.openai_available() else "no-key",
+        ai_client.PROMPT_VERSION,
+        scp.SCP_VERSION,
+        "ai" if st.session_state.get("use_ai") else "rules",
+    ]
+    return hashlib.sha256("\x1f".join(parts).encode()).hexdigest()[:16]
+
+
+def run_analysis(force: bool = False) -> None:
+    """Single orchestration point for the full pipeline.
+
+    Always runs the deterministic rules engine (baseline). When AI
+    enhancement is enabled and a key is present, also runs the OpenAI
+    extraction and merges it as an enhancement layer. Both result sets are
+    stored in one analysis object consumed by every module - Streamlit
+    reruns and navigation never trigger a second API call because the
+    fingerprint guard in ensure_analysis skips fresh results.
+    """
     text = st.session_state.curriculum_text
-    warning = None
+    if not text:
+        return
+    if (
+        not force
+        and st.session_state.analysis is not None
+        and st.session_state.analysis.get("fingerprint") == analysis_fingerprint()
+    ):
+        return  # results are current - dedup guard
+
+    use_ai = bool(st.session_state.get("use_ai"))
+    key_ok = ai_client.openai_available()
     rules_df = skills.extract_skills_rules(text, REF["taxonomy"])
 
-    if use_ai and ai_client.openai_available():
+    skills_ai = careers_ai = None
+    ai_error = None
+    if use_ai and key_ok:
         try:
             ai_skills = ai_client.analyze_curriculum(text)
-            skills_df = skills.merge_ai_results(rules_df, ai_skills, REF["taxonomy"])
-            method = "Rules engine + AI analysis (OpenAI)"
+            skills_ai = skills.merge_ai_results(rules_df, ai_skills, REF["taxonomy"])
+            ai_status = "ok"
         except ai_client.AIClientError as exc:
-            skills_df = rules_df
-            method = "Rules engine (AI failed - fallback)"
-            warning = f"AI analysis failed, using deterministic extraction instead: {exc}"
+            ai_status = "error"
+            ai_error = str(exc)
+    elif use_ai and not key_ok:
+        ai_status = "unavailable"
     else:
-        skills_df = rules_df
-        method = "Deterministic rules engine" if not use_ai else "Rules engine (no API key)"
+        ai_status = "disabled"
 
-    # Educator-reviewed SCP skill statuses override engine output.
+    engine_df = skills_ai if skills_ai is not None else rules_df
+    method = (
+        "Deterministic rules engine + AI enhancement"
+        if ai_status == "ok"
+        else "Deterministic rules engine"
+        + (" (AI attempted - fell back)" if ai_status == "error" else "")
+    )
+
+    # Educator-reviewed SCP statuses layer onto the final output only;
+    # engine-level sets stay pure so comparisons compare engines.
+    final_df = engine_df
     pid = st.session_state.get("active_profile_id")
     if pid and pid in st.session_state.get("profiles", {}):
-        skills_df = scp.apply_profile_overrides(
-            st.session_state.profiles[pid], skills_df, REF["taxonomy"]
+        final_df = scp.apply_profile_overrides(
+            st.session_state.profiles[pid], engine_df, REF["taxonomy"]
         )
         method += " + reviewed profile statuses"
 
-    careers_df = careers.match_occupations(skills_df, REF["occupations"])
-    careers_ids = recommendations.careers_with_skill_ids(careers_df, REF["occupations"])
+    careers_final = careers.match_occupations(final_df, REF["occupations"])
+    careers_rules = careers.match_occupations(rules_df, REF["occupations"])
+    if skills_ai is not None:
+        careers_ai = careers.match_occupations(skills_ai, REF["occupations"])
 
     st.session_state.analysis = {
-        "skills": skills_df,
-        "careers": careers_df,
-        "careers_ids": careers_ids,
+        "skills": final_df,
+        "careers": careers_final,
+        "careers_ids": recommendations.careers_with_skill_ids(
+            careers_final, REF["occupations"]
+        ),
+        "skills_rules": rules_df,
+        "careers_rules": careers_rules,
+        "skills_ai": skills_ai,
+        "careers_ai": careers_ai,
         "method": method,
-        "used_ai": use_ai and ai_client.openai_available() and warning is None,
+        "used_ai": ai_status == "ok",
+        "ai_status": ai_status,  # ok | error | unavailable | disabled
+        "ai_error": ai_error,
+        "fingerprint": analysis_fingerprint(),
+        "meta": {
+            "model": ai_client.configured_model() if key_ok else None,
+            "prompt_version": ai_client.PROMPT_VERSION,
+            "scp_version": scp.SCP_VERSION,
+            "ran_at": datetime.now().isoformat(timespec="seconds"),
+        },
     }
-    st.session_state.last_run_version = st.session_state.curriculum_version
-    return warning
 
 
 def ensure_analysis() -> dict | None:
-    """Run the pipeline only when a curriculum has been explicitly selected."""
+    """Run the pipeline only when a curriculum has been explicitly selected
+    and the stored result's fingerprint no longer matches current inputs."""
     if not st.session_state.curriculum_text:
         return None
-    if (
-        st.session_state.analysis is None
-        or st.session_state.last_run_version != st.session_state.curriculum_version
-    ):
-        run_analysis(st.session_state.get("use_ai", False))
+    a = st.session_state.analysis
+    if a is None or a.get("fingerprint") != analysis_fingerprint():
+        run_analysis()
     return st.session_state.analysis
 
 
@@ -834,29 +894,29 @@ def page_curriculum():
                 st.rerun()
 
     st.divider()
-    use_ai = st.toggle(
+    st.toggle(
         "Use AI extraction (OpenAI)",
-        value=False,
+        key="use_ai",
         disabled=not live,
         help="Requires OPENAI_API_KEY. Responses are JSON-schema validated; "
-        "failures fall back to the deterministic engine.",
+        "failures fall back to the deterministic engine. Changing this "
+        "re-runs the analysis automatically.",
     )
-    st.session_state.use_ai = use_ai
     if live:
         if st.button("Test OpenAI connection", key="m1-aitest"):
             with st.spinner("Sending a small authenticated request..."):
                 result = ai_client.test_connection()
             (st.success if result["ok"] else st.error)(result["message"])
         st.caption(
-            "For a side-by-side deterministic vs AI comparison of this curriculum, "
-            "open the **AI Comparison** section in the sidebar."
+            "Results feed both this module and AI Comparison - one analysis, "
+            "no duplicate API calls."
         )
     if st.button("Re-run analysis", type="primary"):
-        warning = run_analysis(use_ai)
-        if warning:
-            st.warning(warning)
-        else:
-            st.success("Analysis updated.")
+        run_analysis(force=True)
+        st.session_state.curriculum_version += 1
+        st.rerun()
+    if A and A.get("ai_error"):
+        st.warning(f"AI enhancement failed; deterministic results shown: {A['ai_error']}")
 
     sk = A["skills"]
     st.caption(f"Active curriculum: **{st.session_state.curriculum_label}** · Engine: {A['method']}")
@@ -1134,67 +1194,84 @@ def page_compare():
     if not require_analysis():
         return
     st.subheader("AI vs Deterministic — side-by-side")
+
+    # Deliberate re-run first (button state is evaluated this run).
+    if st.button("Re-run analysis", key="cmp-rerun"):
+        run_analysis(force=True)
+        st.rerun()
+
+    a = st.session_state.analysis
+    meta = a.get("meta", {})
     st.caption(
-        "Compares what each engine extracts from the SAME curriculum input. "
-        "Verified wage and employer data are identical across engines — AI output "
-        "never changes reference data."
+        f"Engine: {a['method']}"
+        + (f" · model {meta.get('model')}" if meta.get("model") else "")
+        + (f" · ran {meta.get('ran_at')}" if meta.get("ran_at") else "")
+        + " — one analysis feeds every module; navigating here makes no "
+        "additional API call."
     )
-    if not ai_client.openai_available():
-        st.info(
-            "Set OPENAI_API_KEY to enable AI-assisted analysis. The deterministic "
-            "engine results on the left are always available."
+    if ai_client.openai_available():
+        if st.button("Test OpenAI connection", key="cmp-test"):
+            with st.spinner("Sending a small authenticated request..."):
+                result = ai_client.test_connection()
+            (st.success if result["ok"] else st.error)(result["message"])
+
+    rules_df = a["skills_rules"]
+    present = rules_df[rules_df.status.isin(["documented", "inferred", "recommended_addition"])]
+
+    if a["ai_status"] != "ok":
+        msgs = {
+            "disabled": "AI enhancement is **off** — enable 'Use AI extraction' in "
+            "Module 1 (or below) and the comparison appears automatically.",
+            "unavailable": "No OPENAI_API_KEY is configured — AI enhancement cannot run. "
+            "Deterministic results are shown below.",
+            "error": f"AI enhancement **failed** ({a.get('ai_error')}). Deterministic "
+            "results are shown below.",
+        }
+        (st.warning if a["ai_status"] == "error" else st.info)(
+            msgs.get(a["ai_status"], "")
+        )
+        if ai_client.openai_available() and a["ai_status"] != "ok":
+            def _enable_ai():
+                st.session_state.use_ai = True  # fingerprint change -> auto re-run
+
+            st.button(
+                "Enable AI & re-run analysis", type="primary",
+                key="cmp-enable-ai", on_click=_enable_ai,
+            )
+        st.markdown("### Deterministic engine results")
+        st.dataframe(
+            present[["skill_name", "category", "status", "evidence"]].rename(
+                columns={"skill_name": "Skill", "category": "Category",
+                         "status": "Status", "evidence": "Evidence"}
+            ),
+            width="stretch", hide_index=True,
         )
         return
 
-    col_test, col_run = st.columns(2)
-    if col_test.button("Test OpenAI connection", key="cmp-test"):
-        with st.spinner("Sending a small authenticated request..."):
-            result = ai_client.test_connection()
-        (st.success if result["ok"] else st.error)(result["message"])
+    # ai_status == "ok" -> render diffs from the SAME stored analysis object.
+    sd = compare.diff_skills(rules_df, a["skills_ai"])
+    cd = compare.diff_careers(a["careers_rules"], a["careers_ai"])
+    emp_geo = ref_employers()
+    rules_ids = recommendations.careers_with_skill_ids(
+        a["careers_rules"], REF["occupations"]
+    )
+    ai_ids = recommendations.careers_with_skill_ids(
+        a["careers_ai"], REF["occupations"]
+    )
+    rd = compare.diff_recommendations(
+        recommendations.generate_recommendations(rules_df, rules_ids, emp_geo),
+        recommendations.generate_recommendations(a["skills_ai"], ai_ids, emp_geo),
+    )
 
-    if col_run.button(
-        "Run comparison on active curriculum", type="primary", key="cmp-run"
-    ):
-        text = st.session_state.curriculum_text
-        rules_df = skills.extract_skills_rules(text, REF["taxonomy"])
-        try:
-            with st.spinner("Analyzing curriculum with OpenAI..."):
-                ai_skills = ai_client.analyze_curriculum(text)
-            ai_df = skills.merge_ai_results(rules_df, ai_skills, REF["taxonomy"])
-            rules_ca = careers.match_occupations(rules_df, REF["occupations"])
-            ai_ca = careers.match_occupations(ai_df, REF["occupations"])
-            rules_ids = recommendations.careers_with_skill_ids(rules_ca, REF["occupations"])
-            ai_ids = recommendations.careers_with_skill_ids(ai_ca, REF["occupations"])
-            emp_geo = ref_employers()
-            st.session_state.ai_comparison = {
-                "version": st.session_state.curriculum_version,
-                "skills": compare.diff_skills(rules_df, ai_df),
-                "careers": compare.diff_careers(rules_ca, ai_ca),
-                "recs": compare.diff_recommendations(
-                    recommendations.generate_recommendations(rules_df, rules_ids, emp_geo),
-                    recommendations.generate_recommendations(ai_df, ai_ids, emp_geo),
-                ),
-            }
-        except ai_client.AIClientError as exc:
-            st.session_state.ai_comparison = None
-            st.error(f"AI analysis failed ({exc.category}): {exc}")
-
-    comp = st.session_state.get("ai_comparison")
-    if not comp:
-        st.caption("Run the comparison to see engine differences.")
-        return
-    if comp["version"] != st.session_state.curriculum_version:
-        st.warning("Curriculum changed since the comparison ran — re-run it.")
-        return
-
-    sd, cd, rd = comp["skills"], comp["careers"], comp["recs"]
     changed = sd[sd.change != "agreement"]
-
     st.markdown("### Skills")
     m1, m2, m3 = st.columns(3)
     m1.metric("Skills where engines agree", int((sd.change == "agreement").sum()))
     m2.metric("AI-upgraded findings", int((sd.change == "ai_upgraded").sum()))
-    m3.metric("AI-only / downgraded", int((sd.change.isin(["ai_only", "ai_downgraded"])).sum()))
+    m3.metric(
+        "AI-only / downgraded",
+        int((sd.change.isin(["ai_only", "ai_downgraded"])).sum()),
+    )
     show_all = st.checkbox("Show all skills (not just differences)", key="cmp-all")
     view = sd if show_all else changed
     st.dataframe(
