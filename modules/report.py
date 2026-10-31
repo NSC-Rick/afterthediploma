@@ -243,7 +243,21 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             careers_df["compatibility_score"], errors="coerce")
     )
     top_paths = top_paths[top_paths.pathway == "primary"].nlargest(
-        1, "compatibility_score")
+        3, "compatibility_score")
+    # Narrative derives from the ACTIVE analysis - no per-curriculum text.
+    doc_names = skills_df.loc[
+        skills_df.status == "documented", "skill_name"].head(4).tolist()
+    prep = (
+        f"Documented competencies include {', '.join(doc_names)}. "
+        if doc_names else "No skills are documented in the available source. "
+    )
+    prep += (
+        "Best-aligned occupations: "
+        + "; ".join(f"{r['title']} ({r['compatibility_score']}/100)"
+                    for _, r in top_paths.iterrows())
+        + "."
+        if len(top_paths) else ""
+    )
     story += [
         _p("Executive summary", st["h1"]),
         _p(
@@ -251,11 +265,7 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             f"<b>{n_inf}</b> more, supporting <b>{len(careers_df)} candidate career "
             f"pathways</b> — {len(careers_df[careers_df.pathway=='primary'])} primary, "
             f"{len(careers_df[careers_df.pathway=='adjacent'])} adjacent, and "
-            f"{len(careers_df[careers_df.pathway=='extended'])} extended. "
-            + (f"Strongest direct alignment: <b>{top_paths.iloc[0]['title']}</b> "
-               f"({top_paths.iloc[0]['compatibility_score']}/100). " if len(top_paths) else "")
-            + "Graduates leave with hands-on welding and fabrication skills mapped to "
-            "real occupations, regional employers, and published wage benchmarks.",
+            f"{len(careers_df[careers_df.pathway=='extended'])} extended. " + prep,
             st["body"],
         ),
     ]
@@ -267,7 +277,16 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
     story.append(PageBreak())
 
     # ------------------------------------------------- 2. skills intelligence
-    story += [_p("Curriculum & skills intelligence", st["h1"])]
+    n_rec = int((skills_df.status == "recommended_addition").sum())
+    n_und = int((skills_df.status == "not_documented").sum())
+    story += [_p("Curriculum & skills intelligence", st["h1"]),
+              _p(f"{len(skills_df)} skills tracked in this curriculum's "
+                 f"domain scope: {n_doc} documented + {n_inf} inferred + "
+                 f"{n_rec} suggested additions + {n_und} not established. "
+                 + ("AI-assisted extraction contributed to these results; "
+                    if analysis.get("used_ai") else
+                    "Deterministic engine only (AI enhancement not used); ")
+                 + "foreign-domain skills are excluded by design.", st["small"])]
     for status, label, desc in [
         ("documented", "Documented in public source",
          "Explicitly evidenced in the source material."),
@@ -366,22 +385,42 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         "Wage figures are broad occupational benchmarks; extended-pathway earnings "
         "assume additional experience or credentials. Reporting period shown in "
         "Methodology.", st["small"]))
+    limited = wages_df[wages_df.data_status.str.contains(
+        "not published", na=False)]
+    if len(limited):
+        story.append(_p(
+            "Coverage limitation — the retrieved source did not publish "
+            "25th/median/75th percentiles for: "
+            + ", ".join(limited["title"])
+            + ". Rows show 10th/90th percentiles where available; missing "
+            "cells are marked '—' rather than substituted.",
+            st["note"]))
     story.append(PageBreak())
 
     # ------------------------------------------------- 5. regional employment
     g = geo_ref
+    from .employers import relevant_employers as _rel_emp
+    _pres = set(skills_df.loc[
+        skills_df.status.isin(["documented", "inferred"]), "skill_id"])
+    emp_df = _rel_emp(emp_df, set(careers_df["title"]), _pres)
     story += [_p("Regional employment opportunities", st["h1"]),
               _p(f"Reference point: {g['name']} ({g['latitude']:.4f}, "
                  f"{g['longitude']:.4f}). Distances are straight-line miles, not "
-                 "driving distance.", st["small"])]
+                 "driving distance. Employers shown are relevant to this "
+                 "curriculum's pathways; unrelated catalog entries are excluded.",
+                 st["small"])]
+    career_titles = set(careers_df["title"])
     for radius in (25, 50, 100):
         n = int((emp_df.distance_miles <= radius).sum())
-        story.append(_p(f"• <b>{radius} mi:</b> {n} employers in the reference dataset",
+        story.append(_p(f"• <b>{radius} mi:</b> {n} relevant employers in the dataset",
                         st["body"]))
     rows = [["Employer", "Location", "Industry", "Mi", "Relevant pathways"]]
     for _, r in emp_df.head(14).iterrows():
+        # Display only pathways relevant to THIS curriculum's eligible set
+        occs = [o.strip() for o in str(r["relevant_occupations"]).split(";")
+                if o.strip() in career_titles]
         rows.append([r["name"], f"{r['city']}, {r['state']}", r["industry"],
-                     r["distance_miles"], r["relevant_occupations"]])
+                     r["distance_miles"], "; ".join(occs) or "—"])
     story.append(Spacer(1, 0.05 * inch))
     story.append(_t(rows, [1.7 * inch, 1.1 * inch, 1.6 * inch, 0.4 * inch, 2.2 * inch]))
     story.append(_p(
@@ -438,6 +477,14 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         story.append(_p(
             f"{len(obs_all)} of {len(intel_res['observations'])} observations "
             "relevant to this curriculum's pathways.", st["small"]))
+        if not obs_all:
+            story.append(_p(
+                "No observations matched this curriculum's domain. This "
+                "reflects limited coverage of the bundled demonstration "
+                "dataset for this subject area — it is NOT a verified "
+                "absence of relevant regional developments. Live source "
+                "adapters would be required to establish real coverage.",
+                st["note"]))
         for layer in LAYERS:
             obs = [o for o in obs_all if o.layer == layer["key"]]
             story.append(KeepTogether([
@@ -506,11 +553,22 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             f" — retrieved {src.get('retrieved_date', 'n/a')}. The verbatim source is "
             "preserved in the profile; this report is derived analysis on top of it.",
             st["body"]))
+    _src_title = (src.get("title") or "").lower()
     for s in datasets.get("sources", []):
+        # Per-curriculum source entries belong to other profiles - list them
+        # only when they are THIS profile's own source; dataset-level
+        # sources (wages, employers, geocoding) always contributed.
+        if "curriculum" in s.name.lower() and s.name.lower() not in _src_title:
+            continue
         story.append(_p(
             f"<b>{s.name}</b> — scope {s.geographic_scope}; period "
             f"{s.publication_period or 'n/a'}; retrieved {s.retrieved_date or 'n/a'}; "
             f"status: {s.status}", st["small"]))
+    story.append(_p(
+        "Reference datasets are curriculum-scoped: only skills, occupations, "
+        "and employers relevant to this curriculum's domain contributed to "
+        "the findings, regardless of what else the catalogs contain.",
+        st["body"]))
     story.append(_p(
         "Limitations: employer coordinates are municipality centroids; job openings "
         "are not live; wage percentiles are occupational benchmarks; compatibility "
