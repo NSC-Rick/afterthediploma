@@ -21,6 +21,7 @@ from modules import (
     employers,
     profile_ui,
     recommendations,
+    report,
     scp,
     skills,
 )
@@ -113,6 +114,7 @@ def nav_options(has_analysis: bool) -> list[str]:
             "4 · Earnings Intelligence",
             "5 · Curriculum Advisor",
             "AI Comparison",
+            "Reports",
         ]
     options.append("Data & Methodology")
     return options
@@ -627,6 +629,11 @@ def page_dashboard():
         "could expand student options — all advisory for educator review."
     )
 
+    st.button(
+        "Generate Curriculum Opportunity Report (PDF)",
+        type="primary", key="dash-report",
+        on_click=lambda: setattr(st.session_state, "nav", "Reports"),
+    )
     st.markdown("##### Pathways by category")
     counts = ca.groupby("pathway").size().reindex(["primary", "adjacent", "extended"]).fillna(0)
     fig = px.bar(
@@ -1298,6 +1305,63 @@ def page_compare():
     st.dataframe(rd, width="stretch", hide_index=True)
 
 
+def page_reports():
+    if not require_analysis():
+        return
+    st.subheader("Curriculum Opportunity Report")
+    st.caption(
+        "A professional PDF assessment built from the completed analysis — "
+        "no additional API calls are made. Demonstration and unverified data "
+        "are labeled inside the report."
+    )
+    a = st.session_state.analysis
+    profile = st.session_state.profiles.get(st.session_state.active_profile_id)
+    st.markdown(
+        f"**Subject:** {st.session_state.curriculum_label} · "
+        f"**Engine:** {a['method']} · "
+        f"**Analysis ran:** {a.get('meta', {}).get('ran_at', 'unknown')}"
+    )
+
+    if st.button("Generate PDF report", type="primary", key="rep-gen"):
+        with st.spinner("Building report..."):
+            pw = earnings.pathway_wages(a["careers"], REF["wages"])
+            emp_geo = ref_employers()
+            recs = recommendations.generate_recommendations(
+                a["skills"], a["careers_ids"], emp_geo
+            )
+            st.session_state.report_pdf = report.build_report(
+                a,
+                profile,
+                {
+                    "wages": pw,
+                    "employers": emp_geo,
+                    "recommendations": recs,
+                    "sources": REF["sources"],
+                    "job_listings": REF["job_listings"],
+                },
+                get_geo_ref(),
+            )
+            st.session_state.report_fingerprint = a["fingerprint"]
+
+    pdf = st.session_state.get("report_pdf")
+    if pdf:
+        if st.session_state.report_fingerprint != a["fingerprint"]:
+            st.warning("Analysis changed since this PDF was generated — regenerate.")
+        pid = (profile or {}).get("profile_id", "curriculum")
+        st.download_button(
+            "Download Curriculum Opportunity Report",
+            data=pdf,
+            file_name=f"ATD-opportunity-report-{pid}.pdf",
+            mime="application/pdf",
+            type="primary",
+        )
+        st.caption(
+            "Sections: executive summary · skills intelligence · career pathways · "
+            "earnings · regional employment · enhancement opportunities · "
+            "institutional actions · methodology & sources."
+        )
+
+
 def page_sources():
     st.subheader("Data & Methodology")
     st.markdown(
@@ -1340,6 +1404,7 @@ PAGES = {
     "4 · Earnings Intelligence": page_earnings,
     "5 · Curriculum Advisor": page_recommendations,
     "AI Comparison": page_compare,
+    "Reports": page_reports,
     "Data & Methodology": page_sources,
 }
 
