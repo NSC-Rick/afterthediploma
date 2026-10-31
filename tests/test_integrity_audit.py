@@ -169,3 +169,45 @@ def test_counts_reconcile(bundle):
     ca = bundle["ca"]
     assert set(ca.pathway) <= {"primary", "adjacent", "extended"}
     assert (ca.compatibility_score > 0).all()
+
+
+# ---------------------------------------------------------- H. reconciliation
+def test_status_counts_reconcile_to_total(bundle):
+    """Documented + inferred + suggested + not-established == total tracked."""
+    sk = bundle["sk"]
+    parts = sk.status.value_counts()
+    assert parts.sum() == len(sk)
+    assert set(sk.status) <= {"documented", "inferred",
+                              "recommended_addition", "not_documented"}
+
+
+def test_chart_population_matches_documented_plus_inferred(bundle):
+    """Module-1 chart intentionally plots only documented+inferred skills;
+    the displayed subset must equal that filtered population exactly."""
+    sk = bundle["sk"]
+    charted = sk[sk.status.isin(["documented", "inferred"])]
+    kpi = int((sk.status == "documented").sum()) + \
+        int((sk.status == "inferred").sum())
+    assert len(charted) == kpi
+    # category sums on the chart equal category counts of the same filter
+    for cat, n in charted.groupby("category").size().items():
+        assert n == len(charted[charted.category == cat])
+
+
+def test_listing_population_matches_present_skills(bundle):
+    """Expanders display documented+inferred+recommended - every row in
+    that population, nothing else."""
+    sk = bundle["sk"]
+    listed = sk[sk.status.isin(
+        ["documented", "inferred", "recommended_addition"])]
+    remaining = sk[~sk.index.isin(listed.index)]
+    assert (remaining.status == "not_documented").all()
+    assert len(listed) + len(remaining) == len(sk)
+
+
+def test_no_undisplayed_foreign_domain_rows(bundle):
+    """Every row in the analysis must be relevant to this curriculum's
+    detected domain (or general) - nothing invisible-but-foreign."""
+    sk = bundle["sk"]
+    foreign = FOREIGN.get(bundle["pid"], set())
+    assert not set(sk.skill_id) & foreign

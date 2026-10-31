@@ -1019,21 +1019,37 @@ def page_curriculum():
     sk = A["skills"]
     st.caption(f"Active curriculum: **{st.session_state.curriculum_label}** · Engine: {A['method']}")
 
+    n_doc = int((sk.status == "documented").sum())
+    n_inf = int((sk.status == "inferred").sum())
+    n_rec = int((sk.status == "recommended_addition").sum())
+    n_und = int((sk.status == "not_documented").sum())
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Documented", int((sk.status == "documented").sum()))
-    c2.metric("Inferred", int((sk.status == "inferred").sum()))
-    c3.metric("Suggested additions", int((sk.status == "recommended_addition").sum()))
+    c1.metric("Documented", n_doc)
+    c2.metric("Inferred", n_inf)
+    c3.metric("Suggested additions", n_rec)
     c4.metric("Total skills tracked", len(sk))
+    st.caption(
+        f"Total = {n_doc} documented + {n_inf} inferred + {n_rec} suggested "
+        f"additions + {n_und} not established by available evidence."
+    )
 
+    # Chart intentionally plots ONLY documented+inferred skills.
     counts = sk[sk.status.isin(["documented", "inferred"])].groupby("category").size()
     counts = counts.reindex(["core", "supporting", "transferable", "adjacent"]).fillna(0)
     fig = px.bar(
         x=counts.index, y=counts.values,
         labels={"x": "Skill category", "y": "Skills"},
         color_discrete_sequence=["#2563eb"],
+        title=f"Documented + inferred skills by category "
+        f"({int(counts.sum())} of {len(sk)} tracked)",
     )
-    fig.update_layout(height=220, margin=dict(t=10, b=10), showlegend=False)
+    fig.update_layout(height=220, margin=dict(t=30, b=10), showlegend=False)
     st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "Chart scope: documented + inferred skills only. Suggested additions "
+        "and not-established skills are excluded by design - see the expanders "
+        "below for the full categorized list."
+    )
 
     for cat, label in [
         ("core", "Core technical skills"),
