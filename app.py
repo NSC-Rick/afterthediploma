@@ -989,7 +989,7 @@ def page_curriculum():
         ("adjacent", "Adjacent skills"),
     ]:
         sub = sk[sk.category == cat]
-        with st.expander(f"{label} ({len(sub)})", expanded=(cat == "core")):
+        with st.expander(f"{label} ({len(sub)})", expanded=False):
             for _, r in sub.iterrows():
                 chip = STATUS_CHIP.get(r["status"], "")
                 st.markdown(f"**{r['skill_name']}**{chip}", unsafe_allow_html=True)
