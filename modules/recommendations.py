@@ -24,19 +24,21 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["fcaw_welding"],
         "title": "Add flux-cored arc welding (FCAW) unit",
-        "gap": "Flux-cored welding (FCAW) not documented in the curriculum",
+        "gap": "Flux-cored welding (FCAW) not established by available evidence",
         "effort": "Low",
         "benefit": "Broadens construction and field-fabrication alignment; FCAW is widely "
         "used where portability matters.",
-        "rationale": "Requires only wire-feed equipment already typical in welding shops; "
-        "no new capital equipment in most cases.",
+        "rationale": "Extends documented GMAW/SMAW process instruction; expected to "
+        "reuse existing wire-feed capability - confirm against actual shop inventory.",
+        "connection": "Builds on documented arc welding processes",
+        "validation": "Confirm FCAW demand with construction-sector employers",
         "confidence": "Moderate confidence; regional demand inferred from construction-sector "
         "employers in the dataset.",
     },
     {
         "trigger_skills": ["plasma_cutting"],
         "title": "Expand plasma and mechanized cutting exposure",
-        "gap": "Mechanized/plasma cutting not documented",
+        "gap": "Mechanized/plasma cutting not established by available evidence",
         "effort": "Low",
         "benefit": "Strengthens fabrication-shop readiness; cutting is a common entry task "
         "in metal shops.",
@@ -46,7 +48,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["welding_inspection"],
         "title": "Introduce weld inspection standards and the AWS CWI pathway",
-        "gap": "Formal weld-inspection concepts not documented",
+        "gap": "Formal weld-inspection concepts not established by available evidence",
         "effort": "Low",
         "benefit": "Opens quality-inspector pathways and plants an early seed for the "
         "Certified Welding Inspector credential.",
@@ -57,7 +59,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["cnc_operation"],
         "title": "Add CNC fundamentals module",
-        "gap": "CNC operation not documented",
+        "gap": "CNC operation not established by available evidence",
         "effort": "Moderate",
         "benefit": "Unlocks CNC operator pathways; machining is a significant regional "
         "manufacturing sector.",
@@ -69,7 +71,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["cad_basics"],
         "title": "Introduce CAD and digital blueprint interpretation",
-        "gap": "CAD/digital design skills not documented",
+        "gap": "CAD/digital design skills not established by available evidence",
         "effort": "Moderate",
         "benefit": "Strengthens engineering-technician and fabrication pathways; extends "
         "existing blueprint instruction into digital workflows.",
@@ -80,7 +82,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["industrial_maintenance"],
         "title": "Add industrial maintenance fundamentals (hydraulics, pneumatics, bearings)",
-        "gap": "Industrial maintenance content not documented",
+        "gap": "Industrial maintenance content not established by available evidence",
         "effort": "Moderate",
         "benefit": "Opens industrial-maintenance technician pathways - the most frequent "
         "cross-sector employer need in the regional dataset.",
@@ -92,7 +94,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["electrical_fundamentals"],
         "title": "Add basic electrical fundamentals",
-        "gap": "Electrical fundamentals not documented",
+        "gap": "Electrical fundamentals not established by available evidence",
         "effort": "Moderate",
         "benefit": "Complements maintenance and facilities pathways; supports utility-sector "
         "alignment.",
@@ -103,7 +105,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["robotics_automation"],
         "title": "Robotics and automation awareness unit",
-        "gap": "Automation/robotic welding exposure not documented",
+        "gap": "Automation/robotic welding exposure not established by available evidence",
         "effort": "Moderate",
         "benefit": "Prepares students for shops adopting cobot welders and automated cells; "
         "differentiates graduates.",
@@ -114,7 +116,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["mechanical_assembly", "machining_basics"],
         "title": "Broaden mechanical assembly and machining basics",
-        "gap": "Assembly/machining content not documented",
+        "gap": "Assembly/machining content not established by available evidence",
         "effort": "Moderate",
         "benefit": "Widens assembly-technician and machining-adjacent options for students "
         "less drawn to arc welding.",
@@ -124,7 +126,7 @@ CATALOG: list[dict] = [
     {
         "trigger_skills": ["material_handling"],
         "title": "Add rigging and material-handling safety",
-        "gap": "Rigging/material handling not documented",
+        "gap": "Rigging/material handling not established by available evidence",
         "effort": "Low",
         "benefit": "Common requirement in construction, utilities, and fabrication shops; "
         "pairs naturally with crane-signaling awareness.",
@@ -145,8 +147,8 @@ CATALOG: list[dict] = [
     },
     {
         "trigger_skills": ["welding_inspection", "cnc_operation"],
-        "title": "Pursue industry certification alignment (AWS SENSE / CWI awareness / NIMS exposure)",
-        "gap": "Multiple certification-aligned skill areas undocumented",
+        "title": "Extend existing AWS credential instruction toward additional certifications (CWI awareness, NIMS)",
+        "gap": "Additional certification pathways beyond the documented AWS D1.1 opportunity not established by available evidence",
         "effort": "High",
         "benefit": "Portable credentials measurably improve hiring signal; AWS SENSE "
         "alignment also strengthens program marketing.",
@@ -204,6 +206,12 @@ def generate_recommendations(
                 ),
                 "student_benefit": entry["benefit"],
                 "rationale": entry["rationale"],
+                "connection": entry.get(
+                    "connection", "Builds on documented curriculum content"
+                ),
+                "validation": entry.get(
+                    "validation", "Validate employer demand before committing resources"
+                ),
                 "confidence_limitations": entry["confidence"],
                 "data_status": "Derived analysis - advisory recommendation",
             }

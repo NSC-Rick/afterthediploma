@@ -61,12 +61,20 @@ def match_occupations(
             else:
                 missing.append(name)
         score = round(100.0 * earned / total, 1) if total else 0.0
+        n_missing = len(required) - len(matched_doc) - len(matched_inf)
+        if occ["pathway"] == "extended":
+            readiness = "Extended development - additional education, credentials, or experience required"
+        elif n_missing > 0:
+            readiness = f"Supplemental training likely - {n_missing} required skill(s) not established by evidence"
+        else:
+            readiness = "Skill overlap complete - employer verification still required"
         rows.append(
             {
                 "soc_code": occ["soc_code"],
                 "title": occ["title"],
                 "pathway": occ["pathway"],
                 "compatibility_score": score,
+                "readiness": readiness,
                 "matched_documented": "; ".join(matched_doc),
                 "matched_inferred": "; ".join(matched_inf),
                 "missing_skills": "; ".join(missing),

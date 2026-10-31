@@ -86,7 +86,8 @@ def test_report_contains_identity_and_provenance():
 def test_skill_statuses_clearly_distinguished():
     pdf = report.build_report(*_payload(), GEO)
     text = _text(pdf)
-    for label in ["Documented skills", "Inferred skills", "Suggested additions"]:
+    for label in ["Documented in public source", "Reasonably inferred",
+                  "Recommended for consideration"]:
         assert label in text
 
 

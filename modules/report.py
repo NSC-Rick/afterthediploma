@@ -67,9 +67,9 @@ def _styles(primary: str = "#2563eb") -> dict:
         "body": ParagraphStyle("body", fontSize=9.5, spaceAfter=5, **base),
         "small": ParagraphStyle("small", fontSize=8, textColor=SLATE, leading=10,
                                 spaceAfter=4),
-        "cell": ParagraphStyle("cell", fontSize=8, leading=10),
+        "cell": ParagraphStyle("cell", fontSize=8, leading=10, splitLongWords=0),
         "cellb": ParagraphStyle("cellb", fontName="Helvetica-Bold", fontSize=8,
-                                leading=10, textColor=colors.white),
+                                leading=10, textColor=colors.white, splitLongWords=0),
         "note": ParagraphStyle("note", fontSize=8.5, textColor=SLATE,
                                backColor=LIGHT, borderPadding=6, leading=11,
                                spaceBefore=4, spaceAfter=8),
@@ -264,11 +264,13 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
     # ------------------------------------------------- 2. skills intelligence
     story += [_p("Curriculum & skills intelligence", st["h1"])]
     for status, label, desc in [
-        ("documented", "Documented skills", "Explicitly evidenced in the source curriculum."),
-        ("inferred", "Inferred skills",
-         "Reasonably implied by documented content — NOT confirmed student competencies."),
-        ("recommended_addition", "Suggested additions",
-         "Absent from the curriculum; plausibly valuable — not existing competencies."),
+        ("documented", "Documented in public source",
+         "Explicitly evidenced in the source material."),
+        ("inferred", "Reasonably inferred",
+         "Implied by documented content — NOT confirmed student competencies."),
+        ("recommended_addition", "Recommended for consideration",
+         "Not established by available evidence; plausibly valuable — not existing "
+         "competencies and not asserted deficiencies."),
     ]:
         sub = skills_df[skills_df.status == status]
         story.append(KeepTogether([
@@ -288,7 +290,13 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             "AI enhancement contributed to this extraction; AI-surfaced evidence is "
             "shown in the AI Comparison module. Engine: " + analysis["method"],
             st["small"]))
-    story.append(PageBreak())
+    absent = skills_df[skills_df.status == "not_documented"]
+    if len(absent):
+        story.append(_p(
+            f"<b>Not established by available evidence ({len(absent)}):</b> "
+            + ", ".join(absent["skill_name"]) +
+            ". Absence from a public description does not establish a curriculum "
+            "deficiency.", st["small"]))
 
     # ------------------------------------------------- 3. career pathways
     story += [_p("Career pathway analysis", st["h1"])]
@@ -310,13 +318,19 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         sub = careers_df[careers_df.pathway == path]
         story.append(KeepTogether([_p(f"{label} ({len(sub)})", st["h2"]),
                                    _p(note, st["small"])]))
-        rows = [["Occupation", "SOC", "Score", "Missing / to develop", "Training notes"]]
+        rows = [["Occupation", "SOC", "Score", "Readiness",
+                 "Missing / to develop", "Training notes"]]
         for _, r in sub.iterrows():
             rows.append([r["title"], r["soc_code"], f"{r['compatibility_score']}/100",
+                         r.get("readiness", "—"),
                          r["missing_skills"] or "—", r["training_notes"]])
-        story.append(_t(rows, [1.5 * inch, 0.6 * inch, 0.55 * inch,
-                                   1.9 * inch, 2.45 * inch]))
+        story.append(_t(rows, [1.35 * inch, 0.7 * inch, 0.6 * inch,
+                               1.3 * inch, 1.35 * inch, 1.7 * inch]))
         story.append(Spacer(1, 0.08 * inch))
+    story.append(_p(
+        "Scores measure technical skill overlap only. Credentials, licenses, and "
+        "experience requirements are listed separately under Readiness/Training notes "
+        "and are not counted in the score.", st["small"]))
     story.append(PageBreak())
 
     # ------------------------------------------------- 4. earnings
@@ -366,22 +380,31 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         "Employers are real regional organizations compiled for demonstration and are "
         "<b>not verified as currently hiring</b>. No job openings are asserted; a live "
         "job-posting feed is designed for a future release.", st["note"]))
-    story.append(PageBreak())
 
     # ------------------------------------------------- 6. enhancement opportunities
     story += [_p("Curriculum enhancement opportunities", st["h1"]),
               _p("Advisory recommendations for educator review — not curriculum "
                  "requirements.", st["small"])]
+    creds = (profile or {}).get("credentials", [])
+    doc_creds = [c["name"] for c in creds if c.get("status") == "documented"]
+    if doc_creds:
+        story.append(_p(
+            "<b>Existing credential-related instruction (documented):</b> "
+            + "; ".join(doc_creds)
+            + ". Recommendations below aim to extend, not duplicate, these offerings.",
+            st["body"]))
     for group in ["Quick wins", "Moderate enhancements", "Strategic opportunities"]:
         sub = recs_df[recs_df.group == group] if len(recs_df) else recs_df
         if not len(sub):
             continue
         story.append(_p(f"{group} ({len(sub)})", st["h2"]))
-        rows = [["Recommendation", "Gap addressed", "Pathways", "Effort", "Confidence"]]
+        rows = [["Recommendation", "Gap addressed", "Connection & pathways", "Effort",
+                 "Validation & confidence"]]
         for _, r in sub.iterrows():
             rows.append([r["recommendation"], r["gap_addressed"],
-                         r["pathways_strengthened"], r["effort"],
-                         r["confidence_limitations"]])
+                         f"{r.get('connection','')}; {r['pathways_strengthened']}",
+                         r["effort"],
+                         f"{r.get('validation','')}; {r['confidence_limitations']}"])
         story.append(_t(rows, [1.6 * inch, 1.6 * inch, 1.9 * inch,
                                    0.5 * inch, 1.4 * inch]))
         story.append(Spacer(1, 0.06 * inch))
