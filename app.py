@@ -191,7 +191,6 @@ with st.sidebar:
     st.header("Navigate")
     page = st.radio(
         "Section",
-        key="nav",
         [
             "Executive Dashboard",
             "Curriculum Library",
@@ -202,6 +201,7 @@ with st.sidebar:
             "5 · Curriculum Advisor",
             "Data & Methodology",
         ],
+        key="nav",
         label_visibility="collapsed",
     )
     st.divider()
@@ -291,7 +291,7 @@ def page_dashboard():
         },
     )
     fig.update_layout(showlegend=False, height=260, margin=dict(t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.markdown(
         '<div class="caveat">All compatibility scores are indicative, not validated employment '
@@ -367,13 +367,13 @@ def page_library():
     with t_units:
         if p.get("instructional_units"):
             st.dataframe(pd.DataFrame(p["instructional_units"]),
-                         use_container_width=True, hide_index=True)
+                         width="stretch", hide_index=True)
         else:
             st.info("No instructional units documented.")
     with t_skills:
         if p.get("skills"):
             st.dataframe(pd.DataFrame(p["skills"]),
-                         use_container_width=True, hide_index=True)
+                         width="stretch", hide_index=True)
             st.caption(
                 "Statuses: documented = explicit in source · inferred = implied, not "
                 "confirmed · unknown = cannot be determined · recommended = suggested addition."
@@ -383,10 +383,10 @@ def page_library():
     with t_cred:
         st.markdown("**Credentials**")
         st.dataframe(pd.DataFrame(p.get("credentials", [])),
-                     use_container_width=True, hide_index=True)
+                     width="stretch", hide_index=True)
         st.markdown("**Assessments**")
         st.dataframe(pd.DataFrame(p.get("assessments", [])),
-                     use_container_width=True, hide_index=True)
+                     width="stretch", hide_index=True)
     with t_src:
         st.markdown(f"**Source type:** {scp.SOURCE_TYPES.get(p['source']['source_type'], '?')}")
         st.markdown(f"**Title:** {p['source'].get('title', '—')}")
@@ -396,7 +396,7 @@ def page_library():
         if p["source"].get("evidence"):
             st.markdown("**Evidence register**")
             st.dataframe(pd.DataFrame(p["source"]["evidence"]),
-                         use_container_width=True, hide_index=True)
+                         width="stretch", hide_index=True)
         with st.expander("Verbatim source text (preserved, read-only)"):
             st.text(p["source"].get("original_text", "") or "—")
     with t_edit:
@@ -574,7 +574,7 @@ def page_curriculum():
         color_discrete_sequence=["#2563eb"],
     )
     fig.update_layout(height=220, margin=dict(t=10, b=10), showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     for cat, label in [
         ("core", "Core technical skills"),
@@ -619,7 +619,7 @@ def page_careers():
                 "missing_skills": "Missing / additional skills",
             }
         )
-        st.dataframe(view, use_container_width=True, hide_index=True)
+        st.dataframe(view, width="stretch", hide_index=True)
 
     st.divider()
     st.markdown("### Compare pathway alignment")
@@ -630,7 +630,7 @@ def page_careers():
         labels={"compatibility_score": "Compatibility score", "title": "", "pathway": "Pathway"},
     )
     fig.update_layout(height=max(320, 30 * len(ca)), margin=dict(t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.markdown("### Inspect an occupation")
     choice = st.selectbox("Occupation", ca["title"].tolist())
@@ -686,7 +686,7 @@ def page_employers():
                 "information_source": "Source", "data_status": "Data status",
             }
         ),
-        use_container_width=True, hide_index=True,
+        width="stretch", hide_index=True,
     )
 
     st.map(filtered.rename(columns={"latitude": "lat", "longitude": "lon"})[["lat", "lon"]])
@@ -699,7 +699,7 @@ def page_employers():
         icon="⚠️",
     )
     jl = REF["job_listings"]
-    st.dataframe(jl, use_container_width=True, hide_index=True)
+    st.dataframe(jl, width="stretch", hide_index=True)
     st.caption(
         "A replaceable data-provider interface (`modules.data_sources.DataProvider`) is in place "
         "for a future live job-posting feed."
@@ -730,7 +730,7 @@ def page_earnings():
                 "reporting_period": "Reporting period", "data_status": "Status",
             }
         ),
-        use_container_width=True, hide_index=True,
+        width="stretch", hide_index=True,
     )
 
     chart = pw.dropna(subset=["median_annual"]).sort_values("median_annual")
@@ -743,7 +743,7 @@ def page_earnings():
                 "title": "", "pathway": "Pathway"},
     )
     fig.update_layout(height=max(340, 30 * len(chart)), margin=dict(t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Extended pathways typically require additional education, certification, or "
         "experience — see Module 2 training notes."
@@ -761,7 +761,7 @@ def page_earnings():
             color_discrete_map={"Vermont": "#059669", "United States": "#64748b"},
         )
         fig2.update_layout(height=360, xaxis_tickangle=-35, margin=dict(t=10, b=10))
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, width="stretch")
     else:
         st.info("No Vermont-level wage rows available in the dataset.")
 
@@ -813,7 +813,7 @@ def page_recommendations():
         category_orders={"effort": ["Low", "Moderate", "High"]},
     )
     fig.update_layout(height=340, margin=dict(t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def page_sources():

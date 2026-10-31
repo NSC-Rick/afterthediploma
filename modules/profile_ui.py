@@ -107,7 +107,7 @@ def profile_editor(profile: dict, key_prefix: str) -> dict:
         ["sequence", "title", "description", "hours", "source_evidence"],
     )
     edited_units = st.data_editor(
-        units_df, num_rows="dynamic", use_container_width=True,
+        units_df, num_rows="dynamic", width="stretch",
         key=f"{key_prefix}-units",
         column_config={
             "sequence": st.column_config.NumberColumn("Seq", step=1),
@@ -122,7 +122,7 @@ def profile_editor(profile: dict, key_prefix: str) -> dict:
     st.markdown("#### Learning outcomes")
     out_df = _df_or_empty(p.get("learning_outcomes", []), ["outcome", "source_evidence"])
     edited_out = st.data_editor(
-        out_df, num_rows="dynamic", use_container_width=True, key=f"{key_prefix}-out"
+        out_df, num_rows="dynamic", width="stretch", key=f"{key_prefix}-out"
     )
     p["learning_outcomes"] = _records(edited_out, ["outcome", "source_evidence"])
 
@@ -132,7 +132,7 @@ def profile_editor(profile: dict, key_prefix: str) -> dict:
         ["skill", "skill_id", "category", "status", "proficiency_level", "evidence", "notes"],
     )
     edited_sk = st.data_editor(
-        skills_df, num_rows="dynamic", use_container_width=True,
+        skills_df, num_rows="dynamic", width="stretch",
         key=f"{key_prefix}-skills",
         column_config={
             "category": st.column_config.SelectboxColumn("Category", options=_SKILL_CATS),
@@ -156,7 +156,7 @@ def profile_editor(profile: dict, key_prefix: str) -> dict:
     st.markdown("#### Credentials")
     cred_df = _df_or_empty(p.get("credentials", []), ["name", "type", "status", "evidence"])
     edited_cred = st.data_editor(
-        cred_df, num_rows="dynamic", use_container_width=True, key=f"{key_prefix}-cred",
+        cred_df, num_rows="dynamic", width="stretch", key=f"{key_prefix}-cred",
         column_config={
             "status": st.column_config.SelectboxColumn("Status", options=_CRED_STATUSES)
         },
@@ -168,7 +168,7 @@ def profile_editor(profile: dict, key_prefix: str) -> dict:
     st.markdown("#### Assessments")
     asmt_df = _df_or_empty(p.get("assessments", []), ["name", "type", "status", "evidence"])
     edited_asmt = st.data_editor(
-        asmt_df, num_rows="dynamic", use_container_width=True, key=f"{key_prefix}-asmt",
+        asmt_df, num_rows="dynamic", width="stretch", key=f"{key_prefix}-asmt",
         column_config={
             "status": st.column_config.SelectboxColumn("Status", options=_CRED_STATUSES)
         },
