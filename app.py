@@ -10,6 +10,7 @@ from datetime import datetime
 
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 from modules import (
@@ -693,24 +694,31 @@ def page_dashboard():
     st.markdown("##### Pathways by category")
     counts = ca.groupby("pathway").size().reindex(["primary", "adjacent", "extended"]).fillna(0)
     tooltips = _pathway_tooltips(ca)
-    fig = px.bar(
-        x=[careers.PATHWAY_LABELS[p] for p in counts.index],
-        y=counts.values,
-        labels={"x": "", "y": "Pathways"},
-        color=counts.index,
-        color_discrete_map={
-            "primary": "#2563eb",
-            "adjacent": "#0891b2",
-            "extended": "#7c3aed",
-        },
+    # One trace per category so each bar's customdata maps 1:1 to its full
+    # pathway list (per-category color traces break shared customdata).
+    fig = go.Figure(
+        data=[
+            go.Bar(
+                x=[careers.PATHWAY_LABELS[p]],
+                y=[int(counts[p])],
+                marker_color={
+                    "primary": "#2563eb",
+                    "adjacent": "#0891b2",
+                    "extended": "#7c3aed",
+                }[p],
+                customdata=[tooltips[i]],
+                hovertemplate=(
+                    "<b>%{x}</b><br>Pathways: %{y}<br><br>%{customdata}"
+                    "<extra></extra>"
+                ),
+            )
+            for i, p in enumerate(counts.index)
+        ]
     )
-    fig.update_traces(
-        customdata=tooltips,
-        hovertemplate=(
-            "<b>%{x}</b><br>Pathways: %{y}<br><br>%{customdata}<extra></extra>"
-        ),
+    fig.update_layout(
+        yaxis_title="Pathways", showlegend=False, height=260,
+        margin=dict(t=10, b=10), barmode="group",
     )
-    fig.update_layout(showlegend=False, height=260, margin=dict(t=10, b=10))
     st.plotly_chart(fig, width="stretch")
     st.selectbox(
         "Jump to detailed pathway view",

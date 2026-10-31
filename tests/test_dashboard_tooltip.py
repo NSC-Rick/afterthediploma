@@ -1,6 +1,7 @@
 """Dashboard pathway tooltip: dynamic content per curriculum, all three layers."""
 
 import importlib.util
+import re
 from pathlib import Path
 
 import pytest
@@ -43,6 +44,27 @@ def test_welding_tooltip_names():
     analysis, _, _ = _payload()
     tips = _pathway_tooltips(analysis["careers"])
     assert "Welder / Welding Fabricator" in tips[0]
+
+
+@pytest.mark.parametrize("profile_id", ["LI-WELD-001", "LI-LNA-001"])
+def test_tooltip_entry_count_equals_category_count(profile_id):
+    """Regression: 'Pathways: N' must list exactly N careers - not one."""
+    analysis, _, _ = _payload(profile_id)
+    ca = analysis["careers"]
+    tips = _pathway_tooltips(ca)
+    for tip, cat in zip(tips, ["primary", "adjacent", "extended"]):
+        n_rows = int((ca.pathway == cat).sum())
+        n_listed = tip.count("/100")
+        assert n_listed == n_rows, (
+            f"{cat}: bar shows {n_rows} but tooltip lists {n_listed}")
+
+
+@pytest.mark.parametrize("profile_id", ["LI-WELD-001", "LI-LNA-001"])
+def test_tooltips_sorted_by_score(profile_id):
+    analysis, _, _ = _payload(profile_id)
+    for tip in _pathway_tooltips(analysis["careers"]):
+        scores = [float(s) for s in re.findall(r"(\d+(?:\.\d+)?)/100", tip)]
+        assert scores == sorted(scores, reverse=True)
 
 
 def test_tooltips_not_hardcoded():
