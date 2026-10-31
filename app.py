@@ -1211,6 +1211,14 @@ def page_earnings():
         "Entry proxy = 25th percentile; experienced proxy = 75th percentile. "
         "A percentile is a position in the wage distribution, not a guaranteed wage."
     )
+    complete = pw.dropna(subset=["pct10", "entry_proxy", "median_annual",
+                               "experienced_proxy", "pct90"])
+    st.info(
+        f"Earnings coverage: **{len(complete)} of {len(pw)}** occupations have "
+        "all five published percentiles (P10–P90). The remainder show the "
+        "percentiles actually published by the retrieved source — blanks are "
+        "labeled gaps, not hidden estimates."
+    )
 
     view = pw[
         ["title", "soc_code", "pathway", "wage_geographic_scope", "pct10",
@@ -1223,10 +1231,9 @@ def page_earnings():
         view.rename(
             columns={
                 "title": "Occupation", "soc_code": "SOC", "pathway": "Pathway",
-                "wage_geographic_scope": "Wage scope", "pct10": "10th % (published)",
-                "entry_proxy": "Entry proxy (p25)", "median_annual": "Median",
-                "experienced_proxy": "Experienced proxy (p75)",
-                "pct90": "90th % (published)",
+                "wage_geographic_scope": "Geography", "pct10": "P10",
+                "entry_proxy": "P25", "median_annual": "Median",
+                "experienced_proxy": "P75", "pct90": "P90",
                 "reporting_period": "Reporting period", "data_status": "Status",
             }
         ),
@@ -1236,22 +1243,39 @@ def page_earnings():
     if len(missing):
         st.caption(
             "Coverage note: the retrieved source did not publish p25/median/p75 "
-            f"for {len(missing)} occupation(s) — blank cells are unexplained "
-            "gaps only where no data_status explains them; the source mean is "
-            "recorded in the Status column."
+            f"for {len(missing)} occupation(s) — blank cells show only what the "
+            "source published; the source mean is recorded in the Status column."
         )
 
-    chart = pw.dropna(subset=["median_annual"]).sort_values("median_annual")
-    fig = px.bar(
-        chart, x="median_annual", y="title", orientation="h", color="pathway",
-        error_x_minus=chart["median_annual"] - chart["pct10"],
-        error_x=chart["pct90"] - chart["median_annual"],
-        color_discrete_map={"primary": "#2563eb", "adjacent": "#0891b2", "extended": "#7c3aed"},
-        labels={"median_annual": "Median annual wage (bar) with p10–p90 range",
-                "title": "", "pathway": "Pathway"},
-    )
-    fig.update_layout(height=max(340, 30 * len(chart)), margin=dict(t=10, b=10))
-    st.plotly_chart(fig, width="stretch")
+    # Range chart: bar = published p10-p90 range; median marked when published.
+    chart = pw.dropna(subset=["pct10", "pct90"]).sort_values("pct10")
+    if len(chart):
+        fig = go.Figure()
+        fig.add_bar(
+            x=chart["pct90"] - chart["pct10"], y=chart["title"],
+            base=chart["pct10"], orientation="h", name="P10–P90 range",
+            marker_color="#93c5fd",
+            customdata=chart[["soc_code", "wage_geographic_scope",
+                              "pct10", "pct90", "median_annual",
+                              "reporting_period"]],
+            hovertemplate=(
+                "%{y}<br>SOC %{customdata[0]} · %{customdata[1]}<br>"
+                "P10: $%{customdata[2]:,.0f} · P90: $%{customdata[3]:,.0f}<br>"
+                "Median: $%{customdata[4]:,.0f}<br>%{customdata[5]}<extra></extra>"),
+        )
+        med = chart.dropna(subset=["median_annual"])
+        if len(med):
+            fig.add_scatter(
+                x=med["median_annual"], y=med["title"], mode="markers",
+                marker=dict(color="#1e40af", size=9, symbol="diamond"),
+                name="Published median",
+            )
+        fig.update_layout(
+            height=max(340, 30 * len(chart)), margin=dict(t=10, b=10),
+            xaxis_title="Annual wage — published P10–P90 range (diamond = median)",
+            yaxis_title="", showlegend=True,
+        )
+        st.plotly_chart(fig, width="stretch")
     st.caption(
         "Extended pathways typically require additional education, certification, or "
         "experience — see Module 2 training notes."

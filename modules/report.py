@@ -374,13 +374,15 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             "Median annual wages (best available scope)", color="#059669",
             horizontal=True, xlabel="Annual USD"),
             width=5.6 * inch, height=2.2 * inch))
-    rows = [["Occupation", "SOC", "Scope", "Entry (p25)", "Median", "Experienced (p75)"]]
+    rows = [["Occupation", "SOC", "Scope", "P10", "P25", "Median",
+             "P75", "P90"]]
     for _, r in wages_df.iterrows():
         rows.append([r["title"], r["soc_code"], r["wage_geographic_scope"],
-                     _money(r["entry_proxy"]), _money(r["median_annual"]),
-                     _money(r["experienced_proxy"])])
-    story.append(_t(rows, [1.9 * inch, 0.6 * inch, 1.0 * inch,
-                               1.1 * inch, 1.0 * inch, 1.4 * inch]))
+                     _money(r["pct10"]), _money(r["entry_proxy"]),
+                     _money(r["median_annual"]), _money(r["experienced_proxy"]),
+                     _money(r["pct90"])])
+    story.append(_t(rows, [1.6 * inch, 0.55 * inch, 0.85 * inch, 0.9 * inch,
+                           0.9 * inch, 0.9 * inch, 0.9 * inch, 0.9 * inch]))
     story.append(_p(
         "Wage figures are broad occupational benchmarks; extended-pathway earnings "
         "assume additional experience or credentials. Reporting period shown in "
