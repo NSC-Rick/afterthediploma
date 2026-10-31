@@ -27,6 +27,9 @@ STATUS_INFERRED = "inferred"
 STATUS_RECOMMENDED = "recommended_addition"
 STATUS_NOT_FOUND = "not_documented"
 
+# Bump when extraction semantics change (invalidates cached analyses).
+ENGINE_VERSION = "2.0"
+
 # When these skills are documented, the listed skill can reasonably be
 # inferred even if never named in the document. Each rule keeps a
 # human-readable rationale so inference stays transparent.
@@ -183,6 +186,25 @@ def extract_skills_rules(curriculum_text: str, taxonomy: pd.DataFrame) -> pd.Dat
                 ),
             )
         )
+
+    # Curriculum-scoped domain filtering. The taxonomy carries a `domain`
+    # column ("trades", "healthcare", "general"). Skills in a domain the
+    # curriculum does not actually teach are excluded ENTIRELY - never
+    # surfaced as documented, suggested, or even unestablished - so no
+    # consumer (UI, scoring, recommendations, report) can leak
+    # foreign-domain skills. When no non-general domain is detected, all
+    # domains are retained (undetectable scope).
+    if "domain" in taxonomy.columns:
+        dom_map = taxonomy.set_index("skill_id")["domain"]
+        detected = {
+            dom_map.get(s) for s in (documented_ids | inferred_ids)
+        } - {"general", None}
+        if detected:
+            foreign = {
+                sid for sid, dom in dom_map.items()
+                if dom not in detected and dom != "general"
+            }
+            hits = [h for h in hits if h.skill_id not in foreign]
 
     df = pd.DataFrame([h.__dict__ for h in hits])
     cat_order = {"core": 0, "supporting": 1, "transferable": 2, "adjacent": 3}

@@ -175,6 +175,7 @@ def analysis_fingerprint() -> str:
         ai_client.configured_model() if ai_client.openai_available() else "no-key",
         ai_client.PROMPT_VERSION,
         scp.SCP_VERSION,
+        skills.ENGINE_VERSION,
         "ai" if st.session_state.get("use_ai") else "rules",
     ]
     return hashlib.sha256("\x1f".join(parts).encode()).hexdigest()[:16]
@@ -1028,7 +1029,10 @@ def page_curriculum():
         ("transferable", "Transferable skills"),
         ("adjacent", "Adjacent skills"),
     ]:
-        sub = sk[sk.category == cat]
+        # Expanders list curriculum-scoped skills only - absent catalog
+        # rows are not displayed, so counts match what users see.
+        sub = sk[(sk.category == cat) &
+                 sk.status.isin(["documented", "inferred", "recommended_addition"])]
         with st.expander(f"{label} ({len(sub)})", expanded=False):
             for _, r in sub.iterrows():
                 chip = STATUS_CHIP.get(r["status"], "")
