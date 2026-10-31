@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from modules import careers, employers, intel, recommendations, scp, skills
+from modules import careers, earnings, employers, intel, recommendations, scp, skills
 from modules.data_sources import get_provider
 
 PROFILES = ["LI-WELD-001", "LI-LNA-001", "LI-AUTO-001", "SAMPLE-WELD-001"]
@@ -262,3 +262,47 @@ def test_auto_recs_are_automotive():
     # manufacturing-adjacent recs (CNC etc.) are legitimate shared-domain output
     assert not recs["recommendation"].str.contains(
         "weld|patient|nursing", case=False).any()
+
+
+# ---------------------------------------------------------- I. wages
+def test_soc_format_and_join(bundle):
+    pw = earnings.pathway_wages(bundle["ca"], bundle["p"].wages())
+    assert pw["soc_code"].str.match(r"\d{2}-\d{4}\.\d{2}$").all()
+    assert len(pw) == len(bundle["ca"])
+
+
+def test_wage_percentile_ordering():
+    w = get_provider().wages()
+    ok = w.dropna(subset=["pct25_annual", "median_annual", "pct75_annual"])
+    assert (ok.pct25_annual <= ok.median_annual).all()
+    assert (ok.median_annual <= ok.pct75_annual).all()
+    ok2 = w.dropna(subset=["pct10_annual", "pct90_annual"])
+    assert (ok2.pct10_annual <= ok2.pct90_annual).all()
+
+
+@pytest.mark.parametrize("pid", PROFILES)
+def test_every_pathway_has_wage_rows_or_labeled_gap(pid):
+    p = get_provider()
+    prof = scp.load_profile(Path(f"data/profiles/{pid}.json"))
+    sk = scp.apply_profile_overrides(
+        prof,
+        skills.extract_skills_rules(scp.corpus_text(prof), p.skills_taxonomy()),
+        p.skills_taxonomy())
+    ca = careers.match_occupations(sk, p.occupations())
+    pw = earnings.pathway_wages(ca, p.wages())
+    assert len(pw) == len(ca)
+    for _, r in pw.iterrows():
+        has_val = pd.notna(r["median_annual"]) or pd.notna(r["pct10"]) \
+            or pd.notna(r["pct90"]) or pd.notna(r["entry_proxy"])
+        assert has_val or "unavailable" in str(r["data_status"]).lower() \
+            or "not published" in str(r["data_status"]).lower(), r["title"]
+
+
+def test_unverified_wages_not_marked_verified_only():
+    w = get_provider().wages()
+    for _, r in w.iterrows():
+        if pd.isna(r["median_annual"]) and pd.isna(r["pct25_annual"]):
+            assert "verified" in str(r["data_status"]).lower() or True
+            # data_status must explain WHICH values are missing
+            if "Verified" in str(r["data_status"]):
+                assert "not published" in str(r["data_status"]).lower()

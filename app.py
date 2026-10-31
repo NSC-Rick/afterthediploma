@@ -1213,22 +1213,33 @@ def page_earnings():
     )
 
     view = pw[
-        ["title", "soc_code", "pathway", "wage_geographic_scope", "entry_proxy",
-         "median_annual", "experienced_proxy", "reporting_period", "data_status"]
+        ["title", "soc_code", "pathway", "wage_geographic_scope", "pct10",
+         "entry_proxy", "median_annual", "experienced_proxy", "pct90",
+         "reporting_period", "data_status"]
     ].copy()
-    for col in ["entry_proxy", "median_annual", "experienced_proxy"]:
+    for col in ["pct10", "entry_proxy", "median_annual", "experienced_proxy", "pct90"]:
         view[col] = view[col].map(_fmt_money)
     st.dataframe(
         view.rename(
             columns={
                 "title": "Occupation", "soc_code": "SOC", "pathway": "Pathway",
-                "wage_geographic_scope": "Wage scope", "entry_proxy": "Entry proxy (p25)",
-                "median_annual": "Median", "experienced_proxy": "Experienced proxy (p75)",
+                "wage_geographic_scope": "Wage scope", "pct10": "10th % (published)",
+                "entry_proxy": "Entry proxy (p25)", "median_annual": "Median",
+                "experienced_proxy": "Experienced proxy (p75)",
+                "pct90": "90th % (published)",
                 "reporting_period": "Reporting period", "data_status": "Status",
             }
         ),
         width="stretch", hide_index=True,
     )
+    missing = pw[pw.data_status.str.contains("not published", na=False)]
+    if len(missing):
+        st.caption(
+            "Coverage note: the retrieved source did not publish p25/median/p75 "
+            f"for {len(missing)} occupation(s) — blank cells are unexplained "
+            "gaps only where no data_status explains them; the source mean is "
+            "recorded in the Status column."
+        )
 
     chart = pw.dropna(subset=["median_annual"]).sort_values("median_annual")
     fig = px.bar(
