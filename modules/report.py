@@ -50,7 +50,8 @@ CONTENT_W = PAGE_W - 2 * MARGIN
 _GENERATED = datetime.now()  # module load time is irrelevant; set at build
 
 
-def _styles() -> dict:
+def _styles(primary: str = "#2563eb") -> dict:
+    pri = colors.HexColor(primary)
     base = dict(fontName="Helvetica", textColor=NAVY, leading=13)
     return {
         "title": ParagraphStyle("title", fontName="Helvetica-Bold", fontSize=26,
@@ -58,7 +59,7 @@ def _styles() -> dict:
         "subtitle": ParagraphStyle("subtitle", fontSize=13, textColor=SLATE,
                                    leading=16, spaceAfter=18),
         "h1": ParagraphStyle("h1", fontName="Helvetica-Bold", fontSize=15,
-                             textColor=BLUE, leading=18, spaceBefore=6,
+                             textColor=pri, leading=18, spaceBefore=6,
                              spaceAfter=6, keepWithNext=1),
         "h2": ParagraphStyle("h2", fontName="Helvetica-Bold", fontSize=11.5,
                              textColor=NAVY, leading=14, spaceBefore=8,
@@ -96,9 +97,9 @@ def _p(text, style):
     return Paragraph(t, style)
 
 
-def _table(data, col_widths, header=True, font=7.5):
+def _table(data, col_widths, header=True, st=None, header_bg=None):
     """Word-wrapped table with repeat header row (no truncated cells)."""
-    st = _styles()
+    st = st or _styles()
     wrapped = []
     for i, row in enumerate(data):
         wrapped.append(
@@ -106,7 +107,8 @@ def _table(data, col_widths, header=True, font=7.5):
         )
     t = Table(wrapped, colWidths=col_widths, repeatRows=1 if header else 0)
     t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), BLUE if header else LIGHT),
+        ("BACKGROUND", (0, 0), (-1, 0),
+         colors.HexColor(header_bg) if header_bg else (BLUE if header else LIGHT)),
         ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, LIGHT]),
         ("GRID", (0, 0), (-1, -1), 0.4, LINE),
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
@@ -143,25 +145,33 @@ def _money(v):
     return f"${int(v):,}" if pd.notna(v) and v is not None else "—"
 
 
-def _footer(canvas, doc):
-    canvas.saveState()
-    canvas.setFont("Helvetica", 7)
-    canvas.setFillColor(SLATE)
-    canvas.drawString(MARGIN, 0.45 * inch, "After the Diploma — Curriculum Opportunity Report")
-    canvas.drawRightString(PAGE_W - MARGIN, 0.45 * inch, f"Page {doc.page}")
-    canvas.setStrokeColor(LINE)
-    canvas.line(MARGIN, 0.6 * inch, PAGE_W - MARGIN, 0.6 * inch)
-    canvas.restoreState()
+def _make_footer(theme):
+    def _footer(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("Helvetica", 7)
+        canvas.setFillColor(SLATE)
+        left = "After the Diploma — Curriculum Opportunity Report"
+        if theme and theme.demo_label:
+            left += "  ·  Demonstration - not an official institution product"
+        canvas.drawString(MARGIN, 0.45 * inch, left)
+        canvas.drawRightString(PAGE_W - MARGIN, 0.45 * inch, f"Page {doc.page}")
+        canvas.setStrokeColor(LINE)
+        canvas.line(MARGIN, 0.6 * inch, PAGE_W - MARGIN, 0.6 * inch)
+        canvas.restoreState()
+    return _footer
 
 
 def build_report(analysis: dict, profile: dict | None, datasets: dict,
-                 geo_ref: dict) -> bytes:
+                 geo_ref: dict, theme=None) -> bytes:
     """Render the Curriculum Opportunity Report as PDF bytes.
 
     ``datasets``: {"wages": pathway_wages_df, "employers": df-with-distance,
                    "sources": [SourceInfo], "job_listings": df|None}
+    ``theme``: InstitutionTheme for institution-branded output (optional).
     """
-    st = _styles()
+    PRI = theme.primary if theme else "#2563eb"
+    st = _styles(PRI)
+    _t = lambda data, widths: _table(data, widths, st=st, header_bg=PRI)
     skills_df, careers_df = analysis["skills"], analysis["careers"]
     recs_df = datasets.get("recommendations", pd.DataFrame())
     wages_df = datasets["wages"]
@@ -176,8 +186,29 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
     story = []
 
     # ------------------------------------------------- 1. cover + exec summary
+    if theme and theme.institution_name:
+        badge = Table(
+            [[Paragraph(
+                f'<font color="white"><b>{theme.emblem_initials}</b></font>',
+                st["cell"])]],
+            colWidths=[0.55 * inch], rowHeights=[0.55 * inch])
+        badge.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor(PRI)),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ]))
+        story += [
+            Spacer(1, 0.5 * inch),
+            badge,
+            _p(f"{theme.institution_name} — {theme.environment}",
+               ParagraphStyle("env", fontSize=11, textColor=colors.HexColor(PRI),
+                              spaceAfter=2)),
+        ]
+        if theme.emblem_url is None:
+            story.append(_p(theme.emblem_status, st["small"]))
+    else:
+        story.append(Spacer(1, 0.6 * inch))
     story += [
-        Spacer(1, 0.6 * inch),
         _p("After the Diploma", st["title"]),
         _p("Curriculum Opportunity Report", st["subtitle"]),
         Spacer(1, 0.1 * inch),
@@ -194,6 +225,16 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
     ]
     if src.get("notes"):
         story.append(_p(src["notes"], st["note"]))
+    if theme and theme.demo_label:
+        strip = Table([[_p(f"<b>{theme.demo_label}</b>", st["cell"])]],
+                      colWidths=[CONTENT_W])
+        strip.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor(PRI)),
+            ("LEFTPADDING", (0, 0), (-1, -1), 8),
+            ("TOPPADDING", (0, 0), (-1, -1), 6),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ]))
+        story += [strip, Spacer(1, 0.08 * inch)]
 
     n_doc = int((skills_df.status == "documented").sum())
     n_inf = int((skills_df.status == "inferred").sum())
@@ -238,7 +279,7 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             for _, r in sub.iterrows():
                 ev = r.get("evidence") or r.get("rationale") or "—"
                 rows.append([r["skill_name"], r["category"], ev])
-            story.append(_table(rows, [1.7 * inch, 0.9 * inch, 4.4 * inch]))
+            story.append(_t(rows, [1.7 * inch, 0.9 * inch, 4.4 * inch]))
         else:
             story.append(_p("None identified.", st["body"]))
         story.append(Spacer(1, 0.08 * inch))
@@ -273,7 +314,7 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         for _, r in sub.iterrows():
             rows.append([r["title"], r["soc_code"], f"{r['compatibility_score']}/100",
                          r["missing_skills"] or "—", r["training_notes"]])
-        story.append(_table(rows, [1.5 * inch, 0.6 * inch, 0.55 * inch,
+        story.append(_t(rows, [1.5 * inch, 0.6 * inch, 0.55 * inch,
                                    1.9 * inch, 2.45 * inch]))
         story.append(Spacer(1, 0.08 * inch))
     story.append(PageBreak())
@@ -297,7 +338,7 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         rows.append([r["title"], r["soc_code"], r["wage_geographic_scope"],
                      _money(r["entry_proxy"]), _money(r["median_annual"]),
                      _money(r["experienced_proxy"])])
-    story.append(_table(rows, [1.9 * inch, 0.6 * inch, 1.0 * inch,
+    story.append(_t(rows, [1.9 * inch, 0.6 * inch, 1.0 * inch,
                                1.1 * inch, 1.0 * inch, 1.4 * inch]))
     story.append(_p(
         "Wage figures are broad occupational benchmarks; extended-pathway earnings "
@@ -320,7 +361,7 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         rows.append([r["name"], f"{r['city']}, {r['state']}", r["industry"],
                      r["distance_miles"], r["relevant_occupations"]])
     story.append(Spacer(1, 0.05 * inch))
-    story.append(_table(rows, [1.7 * inch, 1.1 * inch, 1.6 * inch, 0.4 * inch, 2.2 * inch]))
+    story.append(_t(rows, [1.7 * inch, 1.1 * inch, 1.6 * inch, 0.4 * inch, 2.2 * inch]))
     story.append(_p(
         "Employers are real regional organizations compiled for demonstration and are "
         "<b>not verified as currently hiring</b>. No job openings are asserted; a live "
@@ -341,7 +382,7 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             rows.append([r["recommendation"], r["gap_addressed"],
                          r["pathways_strengthened"], r["effort"],
                          r["confidence_limitations"]])
-        story.append(_table(rows, [1.6 * inch, 1.6 * inch, 1.9 * inch,
+        story.append(_t(rows, [1.6 * inch, 1.6 * inch, 1.9 * inch,
                                    0.5 * inch, 1.4 * inch]))
         story.append(Spacer(1, 0.06 * inch))
     story.append(PageBreak())
@@ -413,5 +454,6 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         title="After the Diploma — Curriculum Opportunity Report",
         author="After the Diploma",
     )
-    doc.build(story, onFirstPage=_footer, onLaterPages=_footer)
+    doc.build(story, onFirstPage=_make_footer(theme),
+              onLaterPages=_make_footer(theme))
     return buf.getvalue()

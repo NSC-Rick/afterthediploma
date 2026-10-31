@@ -24,6 +24,7 @@ from modules import (
     report,
     scp,
     skills,
+    theme as themes,
 )
 from modules.data_sources import (
     DataStatus,
@@ -59,6 +60,16 @@ st.markdown(
              color:#475569; font-size:0.85rem; border-radius:0 6px 6px 0;}
     .footer {margin-top:3rem; padding-top:1rem; border-top:1px solid #e2e8f0;
              color:#64748b; font-size:0.78rem;}
+    .brandbar {display:flex; align-items:center; gap:14px; padding-left:14px;}
+    .emblem {width:52px; height:52px; border-radius:10px; display:flex;
+             align-items:center; justify-content:center; flex-shrink:0;}
+    .emblem-letters {color:#fff; font-weight:700; font-size:1.05rem; letter-spacing:.03em;}
+    .platform {font-size:1.5rem; font-weight:800; letter-spacing:.02em; color:#0f172a;}
+    .platform-sub {font-size:.85rem; color:#475569; letter-spacing:.04em;}
+    .env {font-size:.8rem; font-weight:600; margin-top:2px;}
+    .demo-strip {border:1px solid; border-radius:6px; padding:.45rem .8rem;
+                 font-size:.78rem; font-weight:700; letter-spacing:.02em;
+                 margin:.6rem 0 .8rem 0; background:#fff;}
     </style>
     """,
     unsafe_allow_html=True,
@@ -145,6 +156,7 @@ def init_state():
     st.session_state.curriculum_version = 0
     st.session_state.use_ai = False
     st.session_state.geo_ref = dict(DEFAULT_GEO_REF)
+    st.session_state.theme_key = themes.DEFAULT_THEME
     st.session_state.initialized = True
 
 
@@ -276,11 +288,33 @@ A = ensure_analysis()
 
 
 # ---------------------------------------------------------------- chrome
-st.markdown("# After the Diploma")
+THEME = themes.get_theme(st.session_state.get("theme_key"))
+
 st.markdown(
-    '<div class="subtitle">Connecting education, skills, and regional opportunity.</div>',
+    f"""
+    <div class="brandbar" style="border-left:6px solid {THEME.primary}">
+      <div class="emblem" style="background:{THEME.primary}">
+        <span class="emblem-letters">{THEME.emblem_initials}</span>
+      </div>
+      <div>
+        <div class="platform">AFTER THE DIPLOMA</div>
+        <div class="platform-sub">Curriculum &amp; Workforce Intelligence</div>
+        {"" if not THEME.institution_name else
+         f'<div class="env" style="color:{THEME.primary}">{THEME.institution_name} — {THEME.environment}</div>'}
+      </div>
+    </div>
+    <div class="subtitle">Connecting education, skills, and regional opportunity.</div>
+    """,
     unsafe_allow_html=True,
 )
+if THEME.demo_label:
+    st.markdown(
+        f'<div class="demo-strip" style="border-color:{THEME.primary};color:{THEME.primary}">'
+        f"{THEME.demo_label}</div>",
+        unsafe_allow_html=True,
+    )
+if THEME.emblem_url is None and THEME.institution_name:
+    st.caption(THEME.emblem_status)
 
 live = ai_client.openai_available()
 if live:
@@ -335,6 +369,10 @@ with st.sidebar:
         else "AI analysis: not configured"
     )
     st.caption(ai_note)
+    st.selectbox(
+        "Theme", list(themes.THEMES), key="theme_key",
+        format_func=lambda k: "Lyndon Institute (demo)" if k == "lyndon" else "After the Diploma (generic)",
+    )
 
 
 STATUS_CHIP = {
@@ -1340,6 +1378,7 @@ def page_reports():
                     "job_listings": REF["job_listings"],
                 },
                 get_geo_ref(),
+                theme=THEME,
             )
             st.session_state.report_fingerprint = a["fingerprint"]
 
