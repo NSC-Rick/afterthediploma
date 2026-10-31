@@ -1,0 +1,40 @@
+{
+  "scp_version": "1.0",
+  "profile_id": "SAMPLE-WELD-001",
+  "institution": {
+    "name": "Demonstration institution",
+    "location": "",
+    "institution_type": "",
+    "website": ""
+  },
+  "program": {
+    "name": "Representative sample welding curriculum",
+    "cip_code": null,
+    "level": "",
+    "description": "",
+    "duration": "",
+    "instructional_hours": null
+  },
+  "source": {
+    "source_type": "manual_entry",
+    "title": "Representative sample welding curriculum",
+    "url": "",
+    "retrieved_date": "2026-10-31",
+    "notes": "Fictional representative sample bundled with the application.",
+    "original_text": "========================================================================\nREPRESENTATIVE SAMPLE CURRICULUM - FOR DEMONSTRATION ONLY\n========================================================================\nThis is a fictional, representative high-school CTE welding curriculum\ncreated for demonstration of the After the Diploma application. It is\nNOT an official Lyndon Institute document, and it does not represent\nthe actual content, sequence, or requirements of any real program.\nAny resemblance to an actual curriculum is coincidental.\n========================================================================\n\nPROGRAM: Welding and Metal Fabrication Technology (Grades 10-12)\n\nPROGRAM OVERVIEW\nStudents develop entry-level welding and metal fabrication skills\nthrough a combination of classroom instruction and hands-on shop\npractice. The program emphasizes safe work habits, blueprint literacy,\nand proficiency in the major arc welding processes used in\nmanufacturing, construction, and repair industries.\n\nCOURSE SEQUENCE\n\nWELDING I - Introduction to Welding and Shop Safety (Grade 10)\n- Shop safety procedures, personal protective equipment (PPE),\n  fire prevention, ventilation and fume control\n- OSHA 10-Hour General Industry awareness training\n- Introduction to oxy-fuel cutting and torch operation\n- Introduction to shielded metal arc welding (SMAW / stick welding)\n  in the flat and horizontal positions\n- Basic weld joints: butt, lap, tee, and corner joints\n- Hand and power tool use: grinders, drills, band saw, shear\n- Material preparation, cleaning, and fit-up fundamentals\n\nWELDING II - Arc Welding Processes and Blueprint Reading (Grade 11)\n- Gas metal arc welding (GMAW / MIG) on carbon steel in all positions\n- Gas tungsten arc welding (GTAW / TIG) fundamentals on steel and\n  aluminum\n- Blueprint reading and welding drawing interpretation\n- AWS weld symbols and joint geometry terminology\n- Measuring and layout: tape measure, combination square, calipers\n- Shop mathematics: fractions, decimals, angles, and tolerances\n- Introduction to metallurgy: carbon steel, stainless steel,\n  aluminum, and heat-affected zone basics\n- Plasma cutting and basic fabrication techniques\n\nWELDING III - Fabrication, Quality, and Career Preparation (Grade 12)\n- Flux-cored arc welding (FCAW) and out-of-position welding\n- Fabrication project: design, layout, cut, fit, and weld a\n  student-designed weldment to specification\n- Visual weld inspection, defect identification, and weld quality\n  standards\n- Equipment setup, maintenance, and troubleshooting of welding\n  power sources and wire feeders\n- Team-based fabrication projects emphasizing teamwork and\n  communication\n- Resume development, interview skills, and workplace\n  professionalism\n- Optional work-based learning placement with a regional employer\n- Opportunity to attempt an AWS welder performance qualification\n  test (program goal; certification not guaranteed)\n\nEMBEDDED SKILLS AND COMPETENCIES\n- Welding safety and regulatory awareness (PPE, hot work, OSHA)\n- Weld quality inspection and workmanship standards\n- Troubleshooting equipment and process problems\n- Reading and interpreting technical drawings and weld symbols\n- Precision measurement and applied shop mathematics\n- Collaboration on multi-student fabrication projects\n- Attention to detail, pride in workmanship, and time management\n\nNOTE ON PROGRAM ALIGNMENT\nThis representative curriculum is loosely aligned with the AWS SENSE\n(Schools Excelling through National Skills Education) framework used\nby many secondary welding programs. Alignment is illustrative only.\n",
+    "evidence": []
+  },
+  "instructional_units": [],
+  "learning_outcomes": [],
+  "skills": [],
+  "credentials": [],
+  "assessments": [],
+  "metadata": {
+    "created_date": "2026-10-31",
+    "last_modified": "2026-10-31",
+    "editor": "",
+    "review_status": "draft",
+    "data_status": "Derived analysis - unreviewed draft",
+    "notes": "Draft profile generated from source text; review and edit before use."
+  }
+}

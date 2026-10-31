@@ -77,7 +77,40 @@ def load_reference_data():
 
 
 REF = load_reference_data()
-REF_EMPLOYERS = employers.employers_with_distance(REF["employers"])
+
+DEFAULT_GEO_REF = {
+    "name": REFERENCE_POINT["name"],
+    "latitude": REFERENCE_POINT["latitude"],
+    "longitude": REFERENCE_POINT["longitude"],
+}
+
+
+def get_geo_ref() -> dict:
+    """Geographic reference for the current analysis (configurable)."""
+    return st.session_state.get("geo_ref", DEFAULT_GEO_REF)
+
+
+def ref_employers() -> pd.DataFrame:
+    g = get_geo_ref()
+    return employers.employers_with_distance(
+        REF["employers"], g["latitude"], g["longitude"]
+    )
+
+
+def nav_options(has_analysis: bool) -> list[str]:
+    """Sidebar navigation; intelligence modules unlock after analysis."""
+    options = ["Home", "Select Curriculum", "Curriculum Library"]
+    if has_analysis:
+        options += [
+            "Executive Dashboard",
+            "1 · Curriculum Intelligence",
+            "2 · Career Pathways",
+            "3 · Regional Employment",
+            "4 · Earnings Intelligence",
+            "5 · Curriculum Advisor",
+        ]
+    options.append("Data & Methodology")
+    return options
 
 
 # ---------------------------------------------------------------- state
@@ -91,20 +124,21 @@ def activate_profile(profile_id: str):
 
 
 def init_state():
+    """Cold start: land on Home with NO curriculum selected."""
     if "initialized" in st.session_state:
         return
     st.session_state.profiles = {p["profile_id"]: p for p in scp.list_profiles()}
     st.session_state.draft_profile = None
+    st.session_state.review_profile = None
+    st.session_state.select_mode = "analyze"
     st.session_state.analysis = None
+    st.session_state.active_profile_id = None
+    st.session_state.curriculum_text = ""
+    st.session_state.curriculum_label = ""
     st.session_state.curriculum_version = 0
     st.session_state.last_run_version = -1
     st.session_state.use_ai = False
-    if "LI-WELD-001" in st.session_state.profiles:
-        activate_profile("LI-WELD-001")
-    else:
-        st.session_state.active_profile_id = None
-        st.session_state.curriculum_text = curriculum.load_sample_curriculum()
-        st.session_state.curriculum_label = "Representative sample welding curriculum (demo)"
+    st.session_state.geo_ref = dict(DEFAULT_GEO_REF)
     st.session_state.initialized = True
 
 
@@ -152,13 +186,26 @@ def run_analysis(use_ai: bool) -> str | None:
     return warning
 
 
-def ensure_analysis() -> dict:
+def ensure_analysis() -> dict | None:
+    """Run the pipeline only when a curriculum has been explicitly selected."""
+    if not st.session_state.curriculum_text:
+        return None
     if (
         st.session_state.analysis is None
         or st.session_state.last_run_version != st.session_state.curriculum_version
     ):
         run_analysis(st.session_state.get("use_ai", False))
     return st.session_state.analysis
+
+
+def require_analysis() -> bool:
+    if st.session_state.analysis is None:
+        st.info(
+            "No analysis has run yet. Choose a curriculum source from the "
+            "Home page or the Select Curriculum section to begin."
+        )
+        return False
+    return True
 
 
 A = ensure_analysis()
@@ -188,32 +235,35 @@ else:
     )
 
 with st.sidebar:
-    st.header("Navigate")
+    analyzed = st.session_state.analysis is not None
+    options = nav_options(analyzed)
+    if st.session_state.get("nav") not in options:
+        st.session_state.nav = "Home"
+    st.caption("Intelligence modules" if analyzed else "Get started")
     page = st.radio(
         "Section",
-        [
-            "Executive Dashboard",
-            "Curriculum Library",
-            "1 · Curriculum Intelligence",
-            "2 · Career Pathways",
-            "3 · Regional Employment",
-            "4 · Earnings Intelligence",
-            "5 · Curriculum Advisor",
-            "Data & Methodology",
-        ],
+        options,
         key="nav",
         label_visibility="collapsed",
     )
+    if analyzed:
+        st.sidebar.button(
+            "Change curriculum / new analysis",
+            on_click=lambda: setattr(st.session_state, "nav", "Select Curriculum"),
+        )
     st.divider()
+    g = get_geo_ref()
     st.markdown(
-        f"**Geographic reference**  \n{REFERENCE_POINT['name']}  \n"
-        f"{REFERENCE_POINT['latitude']:.4f}, {REFERENCE_POINT['longitude']:.4f}"
+        f"**Geographic reference**  \n{g['name']}  \n"
+        f"{g['latitude']:.4f}, {g['longitude']:.4f}",
+        help="Configurable per analysis — set it during profile review or in Module 3.",
     )
-    st.markdown(
-        f"**Analysis engine**  \n{A['method']}",
-        help="Shown on every page so results are never misread as AI-generated when they are not.",
-    )
-    st.caption("Curriculum: " + st.session_state.curriculum_label)
+    if analyzed:
+        st.markdown(
+            f"**Analysis engine**  \n{A['method']}",
+            help="Shown on every page so results are never misread as AI-generated when they are not.",
+        )
+        st.caption("Curriculum: " + st.session_state.curriculum_label)
 
 
 STATUS_CHIP = {
@@ -228,16 +278,247 @@ def _fmt_money(v):
 
 
 # ---------------------------------------------------------------- pages
+def page_home():
+    st.markdown(
+        "A curriculum and workforce intelligence platform for career and "
+        "technical education. Turn any program of study into evidence of what "
+        "students can do, where those skills lead, and how the curriculum "
+        "could go further."
+    )
+    st.caption(
+        "Journey: Home → Curriculum Selection → Profile Review → Intelligence "
+        "Analysis → Executive Dashboard → Detailed Modules"
+    )
+    st.divider()
+
+    def go(mode, review=None):
+        st.session_state.select_mode = mode
+        st.session_state.review_profile = review
+        st.session_state.nav = "Select Curriculum"
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown("### Analyze a Curriculum")
+        st.write(
+            "Upload a PDF, DOCX, or TXT curriculum — or paste program text — and "
+            "build a Standard Curriculum Profile for review."
+        )
+        st.button("Analyze a curriculum", key="home-analyze", type="primary",
+                  on_click=go, args=("analyze",))
+    with c2:
+        st.markdown("### Explore a Program")
+        st.write(
+            "Select an existing Standard Curriculum Profile from the library, "
+            "inspect its evidence, then run the intelligence analysis."
+        )
+        st.button("Explore a program", key="home-explore",
+                  on_click=go, args=("explore",))
+    with c3:
+        st.markdown("### Try a Demonstration")
+        st.write(
+            "Open the representative Lyndon Institute Welding example built from "
+            "the school's public program description."
+        )
+        li = st.session_state.profiles.get("LI-WELD-001")
+        st.button("Try the Welding demo", key="home-demo",
+                  on_click=go, args=("demo", li), disabled=li is None)
+
+    if analyzed:
+        st.divider()
+        st.info(
+            f"An analysis is already active for **{st.session_state.curriculum_label}**."
+        )
+        st.button("Continue to Executive Dashboard →",
+                  on_click=lambda: setattr(st.session_state, "nav", "Executive Dashboard"))
+
+    st.divider()
+    st.markdown(
+        '<div class="caveat">Everything downstream carries source-transparency labels — '
+        "documented vs. inferred skills, verified vs. demonstration data. A public "
+        "program description is never presented as a complete curriculum.</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _geo_editor(key_prefix: str):
+    """Editable geographic reference for the current analysis."""
+    g = dict(get_geo_ref())
+    g["name"] = st.text_input("Reference name", g["name"], key=f"{key_prefix}-goname")
+    c1, c2 = st.columns(2)
+    g["latitude"] = c1.number_input(
+        "Latitude", value=float(g["latitude"]), format="%.5f", key=f"{key_prefix}-lat"
+    )
+    g["longitude"] = c2.number_input(
+        "Longitude", value=float(g["longitude"]), format="%.5f", key=f"{key_prefix}-lon"
+    )
+    st.session_state.geo_ref = g
+    if st.button("Reset to Lyndon Institute", key=f"{key_prefix}-goreset"):
+        st.session_state.geo_ref = dict(DEFAULT_GEO_REF)
+        st.rerun()
+
+
+def _review_summary(p: dict):
+    """Pre-analysis profile review: identity, source type, skill availability."""
+    inst = p.get("institution", {})
+    prog = p.get("program", {})
+    src = p.get("source", {})
+    sks = p.get("skills", [])
+    counts = pd.Series([s.get("status", "unknown") for s in sks]).value_counts()
+
+    c1, c2 = st.columns(2)
+    c1.markdown(f"**Institution:** {inst.get('name') or '—'}")
+    c1.markdown(f"**Location:** {inst.get('location') or '—'}")
+    c2.markdown(f"**Program:** {prog.get('name') or '—'}")
+    c2.markdown(
+        f"**Source type:** `{scp.SOURCE_TYPES.get(src.get('source_type'), 'unknown')}`"
+    )
+    hrs = prog.get("instructional_hours")
+    st.markdown(
+        f"**Duration:** {prog.get('duration') or '—'} · "
+        f"**Instructional hours:** {hrs if hrs else 'Unknown — not documented'}"
+    )
+    st.markdown(
+        "**Skills in profile:** "
+        + " · ".join(
+            f"{counts.get(s, 0)} {s}"
+            for s in ["documented", "inferred", "unknown", "recommended"]
+        )
+        if sks
+        else "**Skills in profile:** none recorded yet — extraction will run on the source text."
+    )
+    if src.get("url"):
+        st.caption(f"Source: {src.get('title', '')} — {src['url']}")
+    if src.get("notes"):
+        st.caption(src["notes"])
+
+
+def page_select():
+    st.subheader("Select Curriculum")
+    mode = st.session_state.select_mode
+
+    if mode == "demo":
+        li = st.session_state.profiles.get("LI-WELD-001")
+        if li and st.session_state.review_profile is None:
+            st.session_state.review_profile = li
+        st.caption(
+            "Demonstration: Lyndon Institute Welding profile, built from the school's "
+            "public program description."
+        )
+    elif mode == "explore":
+        profiles = st.session_state.profiles
+        if not profiles:
+            st.info("The library is empty — analyze a curriculum to create a profile.")
+        else:
+            ids = list(profiles.keys())
+            sel = st.selectbox(
+                "Standard Curriculum Profile", ids,
+                format_func=lambda k: f"{k} · {profiles[k]['program'].get('name', '')}",
+                key="sel-explore",
+            )
+            if st.button("Review this profile", key="sel-explore-btn"):
+                st.session_state.review_profile = profiles[sel]
+    else:  # analyze
+        tab_sample, tab_upload, tab_text = st.tabs(
+            ["Sample curriculum", "Upload file", "Paste text"]
+        )
+        with tab_sample:
+            st.markdown(
+                "Bundled **representative welding curriculum** — clearly labeled "
+                "fictional sample, **not** an official Lyndon Institute document."
+            )
+            if st.button("Create profile from sample", key="sel-sample"):
+                draft = scp.draft_from_text(
+                    curriculum.load_sample_curriculum(),
+                    "manual_entry",
+                    title="Representative sample welding curriculum",
+                    profile_id="SAMPLE-WELD-001",
+                )
+                draft["institution"]["name"] = "Demonstration institution"
+                draft["source"]["notes"] = (
+                    "Fictional representative sample bundled with the application."
+                )
+                st.session_state.review_profile = draft
+        with tab_upload:
+            up = st.file_uploader("Curriculum file", type=["pdf", "docx", "txt"])
+            stype = st.selectbox(
+                "What kind of document is this?",
+                list(scp.SOURCE_TYPES.keys()),
+                index=list(scp.SOURCE_TYPES.keys()).index("uploaded_document"),
+                format_func=lambda s: scp.SOURCE_TYPES[s], key="sel-stype",
+            )
+            if up and st.button("Create profile from file", key="sel-upload"):
+                try:
+                    text = curriculum.extract_text(up.getvalue(), up.name)
+                    st.session_state.review_profile = scp.draft_from_text(
+                        text, stype, title=up.name
+                    )
+                except ValueError as exc:
+                    st.error(str(exc))
+        with tab_text:
+            pasted = st.text_area("Curriculum text", height=160,
+                                  placeholder="Paste curriculum text here...")
+            if st.button("Create profile from text", key="sel-text") and pasted.strip():
+                st.session_state.review_profile = scp.draft_from_text(
+                    curriculum.normalize_text(pasted), "manual_entry",
+                    title="Pasted curriculum",
+                )
+
+    # ------------------------------------------------ profile review step
+    review = st.session_state.review_profile
+    if review is None:
+        return
+
+    st.divider()
+    st.markdown(f"### Review profile `{review['profile_id']}`")
+    _review_summary(review)
+
+    with st.expander("Geographic reference for employer matching"):
+        _geo_editor("sel")
+
+    with st.expander("Edit profile before analysis"):
+        edited = profile_ui.profile_editor(review, key_prefix="sel-review")
+        if st.button("Apply edits", key="sel-apply"):
+            st.session_state.review_profile = edited
+            st.success("Edits applied — review the updated summary above.")
+
+    def _confirm_profile():
+        p = st.session_state.review_profile
+        errors = scp.validate_profile(p)
+        if errors:
+            st.session_state.review_errors = errors
+            return
+        st.session_state.review_errors = []
+        pid = p["profile_id"]
+        st.session_state.profiles[pid] = p
+        try:
+            scp.save_profile(p)
+        except OSError:
+            pass  # library folder not writable (e.g. read-only deploy)
+        st.session_state.review_profile = None
+        activate_profile(pid)
+        st.session_state.nav = "Executive Dashboard"
+
+    st.button(
+        "Confirm profile & run analysis", type="primary",
+        key="sel-confirm", on_click=_confirm_profile,
+    )
+    for e in st.session_state.get("review_errors", []):
+        st.caption(f"· {e}")
+
+
 def page_dashboard():
+    if not require_analysis():
+        return
     sk, ca = A["skills"], A["careers"]
+    emp_geo = ref_employers()
     doc_core = sk[(sk.status == "documented") & (sk.category == "core")]
     adjacent = sk[
         (sk.category == "adjacent") & (sk.status.isin(["documented", "inferred"]))
     ]
-    emp100 = REF_EMPLOYERS[REF_EMPLOYERS.distance_miles <= 100]
+    emp100 = emp_geo[emp_geo.distance_miles <= 100]
     pw = earnings.pathway_wages(ca, REF["wages"])
     recs = recommendations.generate_recommendations(
-        sk, A["careers_ids"], REF_EMPLOYERS
+        sk, A["careers_ids"], emp_geo
     )
     lo, hi = earnings.wage_range_summary(pw)
 
@@ -432,6 +713,8 @@ def page_library():
 
 
 def page_curriculum():
+    if not require_analysis():
+        return
     st.subheader("Module 1 · Curriculum Intelligence")
     st.caption(
         "Every curriculum source is converted into a Standard Curriculum Profile (SCP) "
@@ -596,6 +879,8 @@ def page_curriculum():
 
 
 def page_careers():
+    if not require_analysis():
+        return
     st.subheader("Module 2 · Career Pathway Intelligence")
     ca = A["careers"]
     st.caption(
@@ -652,17 +937,24 @@ def page_careers():
 
 
 def page_employers():
+    if not require_analysis():
+        return
     st.subheader("Module 3 · Regional Employment Intelligence")
+    g = get_geo_ref()
     st.caption(
-        f"Reference point: {REFERENCE_POINT['name']}. "
+        f"Reference point: {g['name']} ({g['latitude']:.4f}, {g['longitude']:.4f}). "
         "Distances are straight-line miles — not driving distances."
     )
+    with st.expander("Change geographic reference"):
+        _geo_editor("m3")
+
+    emp_geo = ref_employers()
 
     radius = st.radio("Search radius (straight-line)", [25, 50, 100],
                       format_func=lambda m: f"{m} miles", horizontal=True)
-    within = REF_EMPLOYERS[REF_EMPLOYERS.distance_miles <= radius]
+    within = emp_geo[emp_geo.distance_miles <= radius]
     st.markdown(
-        f"**{len(within)}** of {len(REF_EMPLOYERS)} dataset employers within {radius} mi."
+        f"**{len(within)}** of {len(emp_geo)} dataset employers within {radius} mi."
     )
 
     industries = sorted(within["industry"].unique().tolist())
@@ -707,6 +999,8 @@ def page_employers():
 
 
 def page_earnings():
+    if not require_analysis():
+        return
     st.subheader("Module 4 · Earnings Intelligence")
     pw = earnings.pathway_wages(A["careers"], REF["wages"])
     st.caption(
@@ -767,9 +1061,11 @@ def page_earnings():
 
 
 def page_recommendations():
+    if not require_analysis():
+        return
     st.subheader("Module 5 · Curriculum Improvement Advisor")
     recs = recommendations.generate_recommendations(
-        A["skills"], A["careers_ids"], REF_EMPLOYERS
+        A["skills"], A["careers_ids"], ref_employers()
     )
     st.caption(
         "Advisory recommendations for educator review — not curriculum requirements. "
@@ -848,6 +1144,8 @@ def page_sources():
 
 
 PAGES = {
+    "Home": page_home,
+    "Select Curriculum": page_select,
     "Executive Dashboard": page_dashboard,
     "Curriculum Library": page_library,
     "1 · Curriculum Intelligence": page_curriculum,

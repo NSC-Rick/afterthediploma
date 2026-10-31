@@ -4,9 +4,21 @@
 
 An interactive workforce-intelligence application that demonstrates how a Career and
 Technical Education (CTE) institution can transform an existing curriculum into
-actionable career and regional-opportunity insight. The demo focuses on a
-**representative welding curriculum** for the Lyndon Institute region in northeastern
-Vermont; the architecture accepts other programs without code changes.
+actionable career and regional-opportunity insight. The architecture accepts any
+program without code changes; a **representative Lyndon Institute Welding profile**
+(`LI-WELD-001`) ships as the bundled demonstration.
+
+### User journey
+
+**Home → Curriculum Selection → Profile Review → Intelligence Analysis →
+Executive Dashboard → Detailed Modules**
+
+The app opens on a general-purpose landing page with three entry points:
+*Analyze a Curriculum* (upload/paste), *Explore a Program* (SCP library), and
+*Try a Demonstration* (the Welding profile). No curriculum is pre-selected; the
+Executive Dashboard and the five intelligence modules unlock only after an
+explicit profile confirmation. The geographic reference for employer matching is
+configurable per analysis.
 
 ## What it answers
 

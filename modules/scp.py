@@ -46,14 +46,19 @@ def load_schema() -> dict:
 
 
 def validate_profile(profile: dict) -> list[str]:
-    """Validate a profile against the SCP schema. Returns a list of errors."""
+    """Validate a profile against the SCP schema. Returns a list of errors.
+
+    Internal session annotations (top-level keys starting with "_", e.g.
+    the library's stored file path) are ignored - they are not part of SCP.
+    """
     errors: list[str] = []
     try:
         import jsonschema
 
+        clean = {k: v for k, v in profile.items() if not k.startswith("_")}
         validator = jsonschema.Draft7Validator(load_schema())
         errors = [f"{'/'.join(map(str, e.absolute_path)) or '/'}: {e.message}"
-                  for e in validator.iter_errors(profile)]
+                  for e in validator.iter_errors(clean)]
     except ImportError:  # pragma: no cover - jsonschema is a declared dep
         errors = _structural_validate(profile)
     return sorted(errors)
@@ -223,7 +228,8 @@ def save_profile(profile: dict, directory: Path | None = None) -> Path:
     directory.mkdir(parents=True, exist_ok=True)
     profile["metadata"]["last_modified"] = str(date.today())
     path = directory / f"{profile['profile_id']}.json"
-    path.write_text(json.dumps(profile, indent=2), encoding="utf-8")
+    clean = {k: v for k, v in profile.items() if not k.startswith("_")}
+    path.write_text(json.dumps(clean, indent=2), encoding="utf-8")
     return path
 
 
