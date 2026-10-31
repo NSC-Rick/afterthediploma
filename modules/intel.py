@@ -149,6 +149,18 @@ class BundledIntelProvider(IntelligenceProvider):
         return out
 
 
+def relevant_observations(
+    obs: list[Observation], career_titles: set[str], skill_ids: set[str]
+) -> list[Observation]:
+    """Curriculum-scoped observation filter: an observation is relevant when
+    its associated occupations intersect the eligible pathways or its skills
+    intersect the present curriculum skills."""
+    return [
+        o for o in obs
+        if set(o.occupations) & career_titles or set(o.skills) & skill_ids
+    ]
+
+
 DEFAULT_CONFIG = {"provider": "bundled", "max_docs": 25}
 
 

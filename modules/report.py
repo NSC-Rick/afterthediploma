@@ -427,9 +427,19 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             f"'{intel_res['provider']}' ({len(intel_res['observations'])} "
             "observations). Cached results - no new research calls were made for "
             "this report.", st["small"]))
-        from .intel import LAYERS, summarize_layer
+        from .intel import LAYERS, summarize_layer, relevant_observations
+        pres_ids = set(
+            skills_df.loc[skills_df.status.isin(["documented", "inferred"]),
+                          "skill_id"]
+        )
+        obs_all = relevant_observations(
+            intel_res["observations"], set(careers_df["title"]), pres_ids
+        )
+        story.append(_p(
+            f"{len(obs_all)} of {len(intel_res['observations'])} observations "
+            "relevant to this curriculum's pathways.", st["small"]))
         for layer in LAYERS:
-            obs = intel_res["by_layer"][layer["key"]]
+            obs = [o for o in obs_all if o.layer == layer["key"]]
             story.append(KeepTogether([
                 _p(f"{layer['label']} ({layer['band']})", st["h2"])]))
             story.append(_p(summarize_layer(layer["key"], obs, intel_res["scope"]),

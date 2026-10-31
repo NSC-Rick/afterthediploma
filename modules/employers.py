@@ -64,3 +64,47 @@ def filter_employers(
 
 def get_job_listings(provider: DataProvider) -> pd.DataFrame:
     return provider.job_listings()
+
+
+def _set(v) -> set[str]:
+    return {s.strip() for s in str(v).split(";") if s.strip()}
+
+
+def relevant_employers(
+    df: pd.DataFrame, career_titles: set[str], skill_ids: set[str]
+) -> pd.DataFrame:
+    """Curriculum-scoped employer relevance.
+
+    An employer is relevant when its declared relevant_occupations intersect
+    the curriculum's eligible career titles, OR its relevant_skills intersect
+    the curriculum's present skills. Employers failing both checks may be
+    real regional organizations but are NOT relevant to this curriculum.
+    """
+    if df.empty:
+        return df
+    mask = df.apply(
+        lambda r: bool(
+            _set(r.get("relevant_occupations", "")) & career_titles
+            or _set(r.get("relevant_skills", "")) & skill_ids
+        ),
+        axis=1,
+    )
+    return df[mask].reset_index(drop=True)
+
+
+def relevant_job_listings(df: pd.DataFrame, career_titles: set[str]) -> pd.DataFrame:
+    """Keep listings whose title shares a distinctive token (len>4) with an
+    eligible career title - a conservative relevance heuristic; irrelevant
+    illustrative listings are dropped rather than shown."""
+    if df.empty:
+        return df
+    toks = {
+        w.lower() for t in career_titles for w in str(t).replace("/", " ").split()
+        if len(w) > 4
+    }
+
+    def hit(title: str) -> bool:
+        words = {w.lower() for w in str(title).replace("/", " ").split()}
+        return bool(words & toks)
+
+    return df[df["job_title"].map(hit)].reset_index(drop=True)

@@ -115,6 +115,18 @@ def ref_employers() -> pd.DataFrame:
     )
 
 
+def curriculum_employers() -> pd.DataFrame:
+    """Employers relevant to the ACTIVE curriculum's eligible careers and
+    present skills - the curriculum-scoped employer set for all modules."""
+    a = st.session_state.get("analysis") or {}
+    ca, sk = a.get("careers"), a.get("skills")
+    df = ref_employers()
+    if ca is None or sk is None:
+        return df
+    present = set(sk.loc[sk.status.isin(["documented", "inferred"]), "skill_id"])
+    return employers.relevant_employers(df, set(ca["title"]), present)
+
+
 def nav_options(has_analysis: bool) -> list[str]:
     """Sidebar navigation; intelligence modules unlock after analysis."""
     options = ["Home", "Select Curriculum", "Curriculum Library"]
@@ -639,7 +651,7 @@ def page_dashboard():
     if not require_analysis():
         return
     sk, ca = A["skills"], A["careers"]
-    emp_geo = ref_employers()
+    emp_geo = curriculum_employers()
     doc_core = sk[(sk.status == "documented") & (sk.category == "core")]
     adjacent = sk[
         (sk.category == "adjacent") & (sk.status.isin(["documented", "inferred"]))
@@ -1115,7 +1127,7 @@ def page_employers():
     with st.expander("Change geographic reference"):
         _geo_editor("m3")
 
-    emp_geo = ref_employers()
+    emp_geo = curriculum_employers()
 
     radius = st.radio("Search radius (straight-line)", [25, 50, 100],
                       format_func=lambda m: f"{m} miles", horizontal=True)
@@ -1157,8 +1169,16 @@ def page_employers():
         "examples only** — they do NOT indicate that any employer is currently hiring.",
         icon="⚠️",
     )
-    jl = REF["job_listings"]
-    st.dataframe(jl, width="stretch", hide_index=True)
+    jl = employers.relevant_job_listings(
+        REF["job_listings"], set(A["careers"]["title"])
+    )
+    if jl.empty:
+        st.info(
+            "No illustrative listings are relevant to this curriculum's "
+            "pathways - irrelevant demonstration entries are filtered out."
+        )
+    else:
+        st.dataframe(jl, width="stretch", hide_index=True)
     st.caption(
         "A replaceable data-provider interface (`modules.data_sources.DataProvider`) is in place "
         "for a future live job-posting feed."
@@ -1232,7 +1252,7 @@ def page_recommendations():
         return
     st.subheader("Module 5 · Curriculum Improvement Advisor")
     recs = recommendations.generate_recommendations(
-        A["skills"], A["careers_ids"], ref_employers()
+        A["skills"], A["careers_ids"], curriculum_employers()
     )
     st.caption(
         "Advisory recommendations for educator review — not curriculum requirements. "
@@ -1340,7 +1360,7 @@ def page_compare():
     # ai_status == "ok" -> render diffs from the SAME stored analysis object.
     sd = compare.diff_skills(rules_df, a["skills_ai"])
     cd = compare.diff_careers(a["careers_rules"], a["careers_ai"])
-    emp_geo = ref_employers()
+    emp_geo = curriculum_employers()
     rules_ids = recommendations.careers_with_skill_ids(
         a["careers_rules"], REF["occupations"]
     )
@@ -1425,10 +1445,23 @@ def page_intel():
         )
         return
 
+    # Curriculum-scoped relevance: display only observations tied to this
+    # curriculum's eligible occupations or present skills (stored evidence
+    # is preserved; presentation is filtered).
+    pres_ids = set(
+        a["skills"].loc[a["skills"].status.isin(["documented", "inferred"]),
+                        "skill_id"]
+    )
+    titles = set(a["careers"]["title"])
+    obs_all = intel.relevant_observations(res["observations"], titles, pres_ids)
+    by_layer = {
+        l["key"]: [o for o in obs_all if o.layer == l["key"]] for l in intel.LAYERS
+    }
+    unlocated = [o for o in obs_all if o.layer is None]
     st.caption(
         f"Collected {res['collected_at']} · provider: {res['provider']} · "
-        f"{len(res['observations'])} observations · "
-        f"research runs this session: {st.session_state.get('intel_runs', 1)}"
+        f"{len(obs_all)} of {len(res['observations'])} observations relevant to "
+        f"this curriculum · research runs: {st.session_state.get('intel_runs', 1)}"
     )
     if st.button("Re-run research", key="intel-rerun"):
         st.session_state.intel_result = intel.run_research(scope, g)
@@ -1436,7 +1469,7 @@ def page_intel():
         st.rerun()
 
     for layer in intel.LAYERS:
-        obs = res["by_layer"][layer["key"]]
+        obs = by_layer[layer["key"]]
         st.markdown(f"### {layer['label']} — {layer['band']}")
         st.caption(layer["question"])
         st.markdown(intel.summarize_layer(layer["key"], obs, scope))
@@ -1460,9 +1493,9 @@ def page_intel():
                     } for o in obs]),
                     width="stretch", hide_index=True,
                 )
-    if res["unlocated"]:
-        with st.expander(f"Unlocated evidence ({len(res['unlocated'])})"):
-            for o in res["unlocated"]:
+    if unlocated:
+        with st.expander(f"Unlocated evidence ({len(unlocated)})"):
+            for o in unlocated:
                 st.caption(f"{o.organization}: {o.observation} — {o.evidence_class}")
 
 
@@ -1486,7 +1519,7 @@ def page_reports():
     if st.button("Generate PDF report", type="primary", key="rep-gen"):
         with st.spinner("Building report..."):
             pw = earnings.pathway_wages(a["careers"], REF["wages"])
-            emp_geo = ref_employers()
+            emp_geo = curriculum_employers()
             recs = recommendations.generate_recommendations(
                 a["skills"], a["careers_ids"], emp_geo
             )

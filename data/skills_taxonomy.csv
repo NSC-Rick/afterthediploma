@@ -46,3 +46,4 @@ ehr_basics,Electronic health records exposure,adjacent,ehr|electronic health rec
 dementia_care_awareness,Dementia care awareness,adjacent,dementia|alzheimer|memory care|cognitive,False,healthcare
 rehabilitation_support,Rehabilitation support,adjacent,rehabilitation|rehab|physical therapy aide|restorative,False,healthcare
 healthcare_ethics,Professional ethics and confidentiality,supporting,professional ethics|hipaa|patient privacy|patient confidentiality,False,healthcare
+thermo_plastic_welding,Thermo plastic welding,core,thermo plastic|plastic welding|hot air weld|false,trades
