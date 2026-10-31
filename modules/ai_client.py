@@ -141,6 +141,11 @@ def _map_error(exc: Exception) -> AIClientError:
             "Could not reach OpenAI (network timeout or connection error). "
             "Check connectivity and retry.", "network",
         )
+    if name == "BadRequestError":
+        return AIClientError(
+            f"The model rejected the request parameters "
+            f"('{configured_model()}'): {exc}", "model",
+        )
     return AIClientError(f"OpenAI request failed: {exc}", "unknown")
 
 
@@ -204,7 +209,6 @@ def analyze_curriculum(
                 }
             },
             max_output_tokens=8000,
-            temperature=0.1,
         )
         raw = resp.output_text or ""
     except Exception as exc:  # noqa: BLE001 - normalized by design

@@ -60,6 +60,7 @@ def test_error_mapping_categories():
         "NotFoundError": "model",
         "APITimeoutError": "network",
         "APIConnectionError": "network",
+        "BadRequestError": "model",
         "SomeRandomError": "unknown",
     }
     for cls_name, expected in cases.items():
@@ -152,6 +153,64 @@ def test_diff_recommendations_tags_origin():
     d = compare.diff_recommendations(r, a).set_index("recommendation")
     assert d.loc["Add CNC", "produced_by"] == "both engines"
     assert d.loc["Add CAD", "produced_by"] == "rules only"
+
+
+# ------------------------------------------------------------- request params
+VALID_RESPONSES_PARAMS = {"model", "instructions", "input", "text",
+                          "max_output_tokens", "tools", "tool_choice",
+                          "store", "metadata", "reasoning", "include"}
+
+
+def test_no_unsupported_params_sent(monkeypatch):
+    """Regression: 'temperature' (and any unlisted param) must never reach
+    responses.create - newer models return 400 for it."""
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    captured = {}
+
+    class _Resp:
+        output_text = (
+            '{"skills": [{"skill": "MIG welding", "category": "core",'
+            ' "status": "documented", "evidence": "MIG unit", "rationale": ""}]}'
+        )
+
+    class _Responses:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            return _Resp()
+
+    class _Client:
+        responses = _Responses()
+
+    monkeypatch.setattr(ai_client, "_client", lambda key: _Client())
+    result = ai_client.analyze_curriculum("Welding curriculum text")
+    assert len(result) == 1
+    assert "temperature" not in captured
+    assert set(captured) <= VALID_RESPONSES_PARAMS
+    assert captured["text"]["format"]["type"] == "json_schema"
+    assert captured["text"]["format"]["strict"] is True
+
+
+def test_connection_uses_same_param_policy(monkeypatch):
+    """test_connection sends only supported params too."""
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    captured = {}
+
+    class _Resp:
+        output_text = "ok"
+
+    class _Responses:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            return _Resp()
+
+    class _Client:
+        responses = _Responses()
+
+    monkeypatch.setattr(ai_client, "_client", lambda key: _Client())
+    result = ai_client.test_connection()
+    assert result["ok"] is True
+    assert "temperature" not in captured
+    assert set(captured) <= VALID_RESPONSES_PARAMS
 
 
 # ------------------------------------------------------------- invariants
