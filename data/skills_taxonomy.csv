@@ -33,3 +33,16 @@ machining_basics,Machining basics,adjacent,machining|lathe|milling|drill press|m
 robotics_automation,Robotics and automation awareness,adjacent,robot|automation|cobot|programmable|automated weld,true
 material_handling,Material handling and rigging,adjacent,forklift|rigging|overhead crane|hoist|material handling|overhead lift,true
 welding_inspection,Welding inspection (CWI pathway),adjacent,cwi|certified welding inspector|weld inspection|inspection standard|acceptance criteria,true
+patient_care,Basic patient care,core,patient care|basic nursing|nursing care,false
+personal_care_assistance,Personal care assistance (ADLs),core,activities of daily living|bathing|dressing|toileting|adl,false
+vital_signs,Vital signs measurement,core,vital signs|blood pressure|pulse|temperature|respirat,false
+patient_safety,Patient safety,supporting,patient safety|fall prevention|safe patient handling|body mechanics,false
+patient_communication,Patient and family communication,supporting,patient communication|family communication|compassion|bedside manner,false
+mobility_assistance,Mobility and transfer assistance,core,mobility assistance|ambulation|repositioning|patient transfer,false
+infection_prevention,Infection prevention and control,supporting,infection prevention|infection control|handwashing|isolation precaution|sterile technique,false
+clinical_documentation,Clinical documentation,supporting,clinical documentation|charting|patient record|observation note,false
+medical_terminology,Medical terminology,supporting,medical terminology|anatomy|physiology,false
+ehr_basics,Electronic health records exposure,adjacent,ehr|electronic health record|epic|charting system,false
+dementia_care_awareness,Dementia care awareness,adjacent,dementia|alzheimer|memory care|cognitive,false
+rehabilitation_support,Rehabilitation support,adjacent,rehabilitation|rehab|physical therapy aide|restorative,false
+healthcare_ethics,Professional ethics and confidentiality,supporting,professional ethics|hipaa|patient privacy|patient confidentiality,false

@@ -13,6 +13,16 @@ import pandas as pd
 from .skills import STATUS_DOCUMENTED, STATUS_INFERRED, skill_presence
 
 EFFORT_ORDER = {"Low": 0, "Moderate": 1, "High": 2}
+
+# Healthcare-domain skill ids; used to gate recommendations so e.g.
+# welding recs never fire for a healthcare curriculum.
+HEALTH_SKILL_IDS = {
+    "patient_care", "personal_care_assistance", "vital_signs",
+    "patient_safety", "patient_communication", "mobility_assistance",
+    "infection_prevention", "clinical_documentation",
+    "medical_terminology", "ehr_basics", "dementia_care_awareness",
+    "rehabilitation_support", "healthcare_ethics",
+}
 GROUP_LABELS = {
     "Low": "Quick wins",
     "Moderate": "Moderate enhancements",
@@ -124,6 +134,62 @@ CATALOG: list[dict] = [
         "confidence": "Moderate confidence; assembly roles appear across regional manufacturers.",
     },
     {
+        "trigger_skills": ["clinical_documentation", "ehr_basics"],
+        "title": "Strengthen clinical documentation and EHR exposure",
+        "gap": "Clinical documentation and digital record skills not established by available evidence",
+        "effort": "Low",
+        "benefit": "Documentation literacy is essential in every documented LNA "
+        "employment setting; EHR familiarity aids employability.",
+        "rationale": "Extends documented patient-care instruction into recording and "
+        "reporting practice; needs no capital equipment - validate scope with employers.",
+        "connection": "Builds on documented patient care and vital-signs instruction",
+        "validation": "Confirm documentation expectations with partner facilities",
+        "confidence": "Moderate confidence; documentation is standard in the occupation "
+        "but depth required varies by setting.",
+    },
+    {
+        "trigger_skills": ["dementia_care_awareness"],
+        "title": "Add dementia care awareness module",
+        "gap": "Dementia care awareness not established by available evidence",
+        "effort": "Low",
+        "benefit": "Long-term care facilities - a documented employer type - report "
+        "high dementia-care caseloads.",
+        "rationale": "A short module using established curricula (e.g., dementia-friendly "
+        "communication) adds differentiated competence.",
+        "connection": "Complements documented ADL support in care facilities",
+        "validation": "Validate demand with regional nursing facilities",
+        "confidence": "Moderate confidence; regional facility demand is plausible but "
+        "not yet verified by interviews.",
+    },
+    {
+        "trigger_skills": ["rehabilitation_support", "mobility_assistance"],
+        "title": "Add mobility, transfer, and rehabilitation-support practice",
+        "gap": "Mobility/transfer and rehabilitation support not established by available evidence",
+        "effort": "Moderate",
+        "benefit": "Strengthens safe-handling competence central to nursing-home and "
+        "rehabilitation roles.",
+        "rationale": "Requires transfer equipment instruction; reuse of existing lab "
+        "resources should be confirmed rather than assumed.",
+        "connection": "Extends documented ADL competencies",
+        "validation": "Confirm equipment and practice standards with clinical instructors",
+        "confidence": "Moderate-high confidence; standard element of CNA programs - "
+        "verify whether already taught (public description is silent).",
+    },
+    {
+        "trigger_skills": ["medical_terminology", "healthcare_ethics"],
+        "title": "Formalize medical terminology and professional-ethics unit",
+        "gap": "Medical terminology, ethics, and confidentiality content not established by available evidence",
+        "effort": "Low",
+        "benefit": "Terminology and HIPAA-awareness underpin both the licensing exam "
+        "and employer expectations.",
+        "rationale": "Classroom-content addition; confirm whether already embedded in "
+        "course hours not visible in the public description.",
+        "connection": "Supports all documented competencies",
+        "validation": "Educator review to determine existing coverage",
+        "confidence": "Moderate confidence; standard in CNA programs - likely already "
+        "present in unpublished curriculum.",
+    },
+    {
         "trigger_skills": ["material_handling"],
         "title": "Add rigging and material-handling safety",
         "gap": "Rigging/material handling not established by available evidence",
@@ -178,9 +244,22 @@ def generate_recommendations(
                 skill_demand.setdefault(sid, []).append(occ["title"])
 
     n_employers = len(employers)
+    present_ids = set(
+        skills_df.loc[
+            skills_df["status"].isin([STATUS_DOCUMENTED, STATUS_INFERRED]),
+            "skill_id",
+        ]
+    )
     rows = []
     for entry in CATALOG:
         triggers = entry["trigger_skills"]
+        # Domain gate: an entry applies only when its triggers live in a
+        # domain the curriculum actually teaches (prevents welding recs
+        # on an LNA profile and vice-versa).
+        trig = set(triggers)
+        entry_health = bool(trig & HEALTH_SKILL_IDS) and not (trig - HEALTH_SKILL_IDS)
+        if entry_health != bool(present_ids & HEALTH_SKILL_IDS):
+            continue
         fires = any(
             (t in ALWAYS_GAP) or presence.get(t) not in (STATUS_DOCUMENTED, STATUS_INFERRED)
             for t in triggers

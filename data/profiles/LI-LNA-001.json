@@ -1,0 +1,179 @@
+{
+  "scp_version": "1.0",
+  "profile_id": "LI-LNA-001",
+  "institution": {
+    "name": "Lyndon Institute",
+    "location": "Lyndon Center, Vermont",
+    "institution_type": "Independent high school and adult CTE provider",
+    "website": "https://www.lyndoninstitute.org"
+  },
+  "program": {
+    "name": "Licensed Nursing Assistant (LNA) - Adult CTE",
+    "cip_code": null,
+    "level": "Postsecondary certificate preparation",
+    "description": "Adult Career and Technical Education LNA program preparing students for Vermont Board of Nursing licensure testing.",
+    "duration": "Not published in public source",
+    "instructional_hours": null
+  },
+  "source": {
+    "source_type": "public_program_description",
+    "title": "Lyndon Institute - Licensed Nursing Assistant (Adult Continuing Education)",
+    "url": "https://www.lyndoninstitute.org/adult-continuing-education/licensed-nursing-assistant",
+    "retrieved_date": "2026-10-31",
+    "notes": "Public program description only - not the complete instructional curriculum. Duration, hours, syllabus, and clinical hour requirements are NOT published and are marked unknown.",
+    "original_text": "The Adult Career and Technical Education Licensed Nursing Assistant (LNA) program at Lyndon Institute has been offered and taught since October 2009. LNAs provide basic nursing care in assisting others with activities of daily living such as bathing, dressing, toileting, and obtaining vital signs as well as many other tasks. LNAs may work in long-term care facilities, hospitals, home health agencies, schools, private care settings, etc. Vermont Board of Nursing (VBON) must approve our program on a bi-annual schedule. The VBON evaluates the effectiveness of our LNA program by analyzing data collected after students have completed the two-part State Licensing Test and been licensed. Our LNA program at Lyndon Institute has been congratulated by the VBON for achieving a first-time pass rate of greater than 80% over the last decade. The VBON LNA testing consists of a skills portion where the student must demonstrate minimum competency in performing basic LNA skills and a then a written portion. We provide our LNA students with up to 3 opportunities to pass the state licensing test. The student must pass both portions of the VBON LNA tests before they are officially certified.",
+    "evidence": [
+      {
+        "field": "program.name",
+        "quote": "Licensed Nursing Assistant (LNA) program at Lyndon Institute has been offered and taught since October 2009"
+      },
+      {
+        "field": "skills.core_care",
+        "quote": "LNAs provide basic nursing care in assisting others with activities of daily living such as bathing, dressing, toileting, and obtaining vital signs"
+      },
+      {
+        "field": "settings",
+        "quote": "LNAs may work in long-term care facilities, hospitals, home health agencies, schools, private care settings"
+      },
+      {
+        "field": "credentials.licensure",
+        "quote": "Vermont Board of Nursing (VBON) must approve our program on a bi-annual schedule"
+      },
+      {
+        "field": "assessments.licensing_test",
+        "quote": "VBON LNA testing consists of a skills portion where the student must demonstrate minimum competency in performing basic LNA skills and a then a written portion"
+      },
+      {
+        "field": "quality.pass_rate",
+        "quote": "first-time pass rate of greater than 80% over the last decade"
+      }
+    ]
+  },
+  "instructional_units": [
+    {
+      "unit_id": "U1",
+      "title": "Basic nursing care and activities of daily living",
+      "description": "Assisting with bathing, dressing, toileting, and related ADL support.",
+      "hours": null,
+      "outcomes": []
+    }
+  ],
+  "learning_outcomes": [
+    {
+      "outcome": "Assist patients with activities of daily living",
+      "source_evidence": "assisting others with activities of daily living such as bathing, dressing, toileting"
+    },
+    {
+      "outcome": "Obtain vital signs",
+      "source_evidence": "obtaining vital signs"
+    },
+    {
+      "outcome": "Demonstrate minimum competency on the VBON LNA skills examination",
+      "source_evidence": "student must demonstrate minimum competency in performing basic LNA skills"
+    }
+  ],
+  "skills": [
+    {
+      "skill": "Basic patient care",
+      "skill_id": "patient_care",
+      "category": "core",
+      "status": "documented",
+      "proficiency_level": "introductory",
+      "evidence": "basic nursing care in assisting others with activities of daily living"
+    },
+    {
+      "skill": "Personal care assistance (ADLs)",
+      "skill_id": "personal_care_assistance",
+      "category": "core",
+      "status": "documented",
+      "evidence": "bathing, dressing, toileting"
+    },
+    {
+      "skill": "Vital signs measurement",
+      "skill_id": "vital_signs",
+      "category": "core",
+      "status": "documented",
+      "evidence": "obtaining vital signs"
+    },
+    {
+      "skill": "Patient safety",
+      "skill_id": "patient_safety",
+      "category": "supporting",
+      "status": "inferred",
+      "evidence": "basic nursing care implies safety supervision"
+    },
+    {
+      "skill": "Patient and family communication",
+      "skill_id": "patient_communication",
+      "category": "supporting",
+      "status": "inferred",
+      "evidence": "assisting others requires caregiver communication"
+    },
+    {
+      "skill": "Infection prevention and control",
+      "skill_id": "infection_prevention",
+      "category": "supporting",
+      "status": "unknown"
+    },
+    {
+      "skill": "Clinical documentation",
+      "skill_id": "clinical_documentation",
+      "category": "supporting",
+      "status": "unknown"
+    },
+    {
+      "skill": "Mobility and transfer assistance",
+      "skill_id": "mobility_assistance",
+      "category": "core",
+      "status": "unknown"
+    },
+    {
+      "skill": "Medical terminology",
+      "skill_id": "medical_terminology",
+      "category": "supporting",
+      "status": "unknown"
+    },
+    {
+      "skill": "Electronic health records exposure",
+      "skill_id": "ehr_basics",
+      "category": "adjacent",
+      "status": "unknown"
+    },
+    {
+      "skill": "Dementia care awareness",
+      "skill_id": "dementia_care_awareness",
+      "category": "adjacent",
+      "status": "unknown"
+    },
+    {
+      "skill": "Rehabilitation support",
+      "skill_id": "rehabilitation_support",
+      "category": "adjacent",
+      "status": "unknown"
+    }
+  ],
+  "credentials": [
+    {
+      "type": "licensure_exam_eligibility",
+      "status": "documented",
+      "evidence": "VBON-approved program; completers take the state licensing test. Completion does NOT itself grant licensure.",
+      "name": "Vermont LNA licensure eligibility (VBON two-part state test)"
+    }
+  ],
+  "assessments": [
+    {
+      "name": "VBON LNA licensing test (skills + written)",
+      "type": "licensure_exam",
+      "status": "documented",
+      "evidence": "skills portion demonstrating minimum competency and a written portion; up to 3 opportunities provided"
+    }
+  ],
+  "metadata": {
+    "created_date": "2026-10-31",
+    "last_modified": "2026-10-31",
+    "editor": "Devin (automated profile construction)",
+    "review_status": "draft",
+    "data_status": "Verified public source - limited detail",
+    "notes": "Second cross-industry validation profile for After the Diploma."
+  }
+}
