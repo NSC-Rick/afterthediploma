@@ -1,0 +1,237 @@
+{
+  "scp_version": "1.0",
+  "profile_id": "LI-AUTO-001",
+  "institution": {
+    "name": "Lyndon Institute",
+    "location": "Lyndon Center, Vermont",
+    "institution_type": "Independent high school and CTE provider",
+    "website": "https://www.lyndoninstitute.org"
+  },
+  "program": {
+    "name": "Automotive Technology (Automotive Tech 1 & 2)",
+    "cip_code": null,
+    "level": "Secondary CTE",
+    "description": "CTE program preparing students for entry-level automotive-industry positions via Vermont Auto Dealer Association General Service Technician key areas.",
+    "duration": "Two levels (Auto Tech 1 & 2)",
+    "instructional_hours": null
+  },
+  "source": {
+    "source_type": "public_program_description",
+    "title": "Lyndon Institute - Automotive Technology",
+    "url": "https://www.lyndoninstitute.org/career-and-technical-education/automotive-technology",
+    "retrieved_date": "2026-10-31",
+    "notes": "Public program description - not the complete instructional curriculum. Instructional hours, unit syllabi, and clinical requirements are NOT published and are marked unknown.",
+    "original_text": "Automotive Tech 1 & 2 is designed to prepare students for entry-level positions in the automotive industry. Upon successful completion of this program, students will have received training in multiple skill categories necessary to maintain and repair today's automobiles. Students receive training in the Vermont Auto Dealer Association--General Service Technician Key areas, which include but are not limited to: Lube Oil Filter/ Scheduled Maintenance, Tire Service and Repair, Brake Systems, Steering & Suspension Systems & Alignment, Diagnosis and Repair of Electrical Systems. Students also have the opportunity to earn ASE student certifications. An Industry Recognized Credential that demonstrates they have a good start on being a Professional Technician. Students, both in classroom instruction and lab, experience the use of the latest shop equipment. We use the same online diagnostic libraries that independent and factory shops use. Over half of the total program time is spent working on vehicles. Cars are increasingly sophisticated; therefore, our text and training are geared toward Post-Secondary levels of education. Problem-solving and computer literacy and application will all be utilized in Automotive Diagnosis.",
+    "evidence": [
+      {
+        "field": "program.name",
+        "quote": "Automotive Tech 1 & 2 is designed to prepare students for entry-level positions in the automotive industry"
+      },
+      {
+        "field": "framework",
+        "quote": "training in the Vermont Auto Dealer Association--General Service Technician Key areas"
+      },
+      {
+        "field": "skills.maintenance",
+        "quote": "Lube Oil Filter/ Scheduled Maintenance, Tire Service and Repair"
+      },
+      {
+        "field": "skills.systems",
+        "quote": "Brake Systems, Steering & Suspension Systems & Alignment, Diagnosis and Repair of Electrical Systems"
+      },
+      {
+        "field": "credentials.ase",
+        "quote": "opportunity to earn ASE student certifications"
+      },
+      {
+        "field": "delivery",
+        "quote": "Over half of the total program time is spent working on vehicles"
+      },
+      {
+        "field": "diagnostics",
+        "quote": "Problem-solving and computer literacy and application will all be utilized in Automotive Diagnosis"
+      }
+    ]
+  },
+  "instructional_units": [
+    {
+      "unit_id": "U1",
+      "title": "General Service Technician key areas",
+      "description": "Lube/oil/filter and scheduled maintenance; tire service and repair; brake systems; steering & suspension systems & alignment; diagnosis and repair of electrical systems.",
+      "hours": null,
+      "outcomes": []
+    }
+  ],
+  "learning_outcomes": [
+    {
+      "outcome": "Perform scheduled maintenance, lube/oil/filter service",
+      "source_evidence": "Lube Oil Filter/ Scheduled Maintenance"
+    },
+    {
+      "outcome": "Service and repair tires, brakes, steering & suspension",
+      "source_evidence": "Tire Service and Repair, Brake Systems, Steering & Suspension Systems & Alignment"
+    },
+    {
+      "outcome": "Diagnose and repair electrical systems",
+      "source_evidence": "Diagnosis and Repair of Electrical Systems"
+    },
+    {
+      "outcome": "Apply problem-solving and computer literacy to automotive diagnosis",
+      "source_evidence": "computer literacy and application will all be utilized in Automotive Diagnosis"
+    }
+  ],
+  "skills": [
+    {
+      "skill": "Vehicle maintenance (lube/oil/filter, scheduled)",
+      "skill_id": "vehicle_maintenance",
+      "category": "core",
+      "status": "documented",
+      "evidence": "Lube Oil Filter/ Scheduled Maintenance"
+    },
+    {
+      "skill": "Tire service and repair",
+      "skill_id": "tire_service",
+      "category": "core",
+      "status": "documented",
+      "evidence": "Tire Service and Repair"
+    },
+    {
+      "skill": "Brake systems service",
+      "skill_id": "brake_suspension",
+      "category": "core",
+      "status": "documented",
+      "evidence": "Brake Systems"
+    },
+    {
+      "skill": "Steering, suspension and alignment",
+      "skill_id": "steering_suspension",
+      "category": "core",
+      "status": "documented",
+      "evidence": "Steering & Suspension Systems & Alignment"
+    },
+    {
+      "skill": "Automotive electrical systems diagnosis and repair",
+      "skill_id": "auto_electrical",
+      "category": "core",
+      "status": "documented",
+      "evidence": "Diagnosis and Repair of Electrical Systems"
+    },
+    {
+      "skill": "Computer-based automotive diagnosis",
+      "skill_id": "computer_diagnostics",
+      "category": "core",
+      "status": "documented",
+      "evidence": "computer literacy and application will all be utilized in Automotive Diagnosis"
+    },
+    {
+      "skill": "Online service and diagnostic documentation",
+      "skill_id": "service_documentation",
+      "category": "supporting",
+      "status": "documented",
+      "evidence": "same online diagnostic libraries that independent and factory shops use"
+    },
+    {
+      "skill": "Diagnostic and shop equipment operation",
+      "skill_id": "diagnostic_equipment",
+      "category": "supporting",
+      "status": "inferred",
+      "evidence": "experience the use of the latest shop equipment"
+    },
+    {
+      "skill": "Shop safety and practices",
+      "skill_id": "shop_safety",
+      "category": "supporting",
+      "status": "unknown"
+    },
+    {
+      "skill": "Engine fundamentals and mechanical systems",
+      "skill_id": "engine_fundamentals",
+      "category": "core",
+      "status": "unknown"
+    },
+    {
+      "skill": "Drivetrain and transmission systems",
+      "skill_id": "drivetrain",
+      "category": "core",
+      "status": "unknown"
+    },
+    {
+      "skill": "Vehicle inspection procedures",
+      "skill_id": "vehicle_inspection",
+      "category": "supporting",
+      "status": "unknown"
+    },
+    {
+      "skill": "Heating and air conditioning systems",
+      "skill_id": "hvac_auto",
+      "category": "core",
+      "status": "unknown"
+    },
+    {
+      "skill": "Customer communication and service advising",
+      "skill_id": "customer_communication",
+      "category": "supporting",
+      "status": "unknown"
+    },
+    {
+      "skill": "Hybrid and electric vehicle systems",
+      "skill_id": "hybrid_ev_systems",
+      "category": "adjacent",
+      "status": "unknown"
+    },
+    {
+      "skill": "High-voltage safety",
+      "skill_id": "high_voltage_safety",
+      "category": "supporting",
+      "status": "unknown"
+    },
+    {
+      "skill": "Advanced driver-assistance systems (ADAS)",
+      "skill_id": "adas_systems",
+      "category": "adjacent",
+      "status": "unknown"
+    },
+    {
+      "skill": "Vehicle network communications (CAN)",
+      "skill_id": "vehicle_networks",
+      "category": "adjacent",
+      "status": "unknown"
+    },
+    {
+      "skill": "Diesel and heavy-equipment systems",
+      "skill_id": "diesel_systems",
+      "category": "adjacent",
+      "status": "unknown"
+    },
+    {
+      "skill": "Fleet maintenance operations",
+      "skill_id": "fleet_maintenance",
+      "category": "adjacent",
+      "status": "unknown"
+    }
+  ],
+  "credentials": [
+    {
+      "name": "ASE student certification (opportunity described in source)",
+      "type": "industry_credential",
+      "status": "documented",
+      "evidence": "Students also have the opportunity to earn ASE student certifications - an Industry Recognized Credential"
+    }
+  ],
+  "assessments": [
+    {
+      "name": "ASE student certification assessments",
+      "type": "certification_exam",
+      "status": "inferred",
+      "evidence": "opportunity to earn ASE student certifications implies assessment participation; details not published"
+    }
+  ],
+  "metadata": {
+    "created_date": "2026-10-31",
+    "last_modified": "2026-10-31",
+    "editor": "Devin (automated profile construction)",
+    "review_status": "draft",
+    "data_status": "Verified public source - limited detail",
+    "notes": "Third cross-industry validation profile; Automotive domain test case."
+  }
+}

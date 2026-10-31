@@ -14,7 +14,7 @@ import pytest
 from modules import careers, employers, intel, recommendations, scp, skills
 from modules.data_sources import get_provider
 
-PROFILES = ["LI-WELD-001", "LI-LNA-001", "SAMPLE-WELD-001"]
+PROFILES = ["LI-WELD-001", "LI-LNA-001", "LI-AUTO-001", "SAMPLE-WELD-001"]
 FOREIGN = {  # domain -> skill_ids that must never appear on that profile
     "LI-LNA-001": {"mig_welding", "tig_welding", "stick_welding",
                    "oxyfuel_cutting", "blueprint_reading", "weld_symbols",
@@ -211,3 +211,54 @@ def test_no_undisplayed_foreign_domain_rows(bundle):
     sk = bundle["sk"]
     foreign = FOREIGN.get(bundle["pid"], set())
     assert not set(sk.skill_id) & foreign
+
+
+AUTO_FOREIGN = {"patient_care", "vital_signs", "infection_prevention",
+                "clinical_documentation", "dementia_care_awareness",
+                "mig_welding", "tig_welding", "stick_welding",
+                "oxyfuel_cutting", "blueprint_reading", "weld_symbols",
+                "welding_safety", "welding_positions", "fcaw_welding"}
+
+
+def test_auto_no_foreign_skills():
+    bundle = _auto_bundle = None
+    p = get_provider()
+    prof = scp.load_profile(Path("data/profiles/LI-AUTO-001.json"))
+    sk = scp.apply_profile_overrides(
+        prof,
+        skills.extract_skills_rules(scp.corpus_text(prof), p.skills_taxonomy()),
+        p.skills_taxonomy())
+    assert not set(sk.skill_id) & AUTO_FOREIGN
+
+
+def test_auto_careers_are_automotive():
+    p = get_provider()
+    prof = scp.load_profile(Path("data/profiles/LI-AUTO-001.json"))
+    sk = scp.apply_profile_overrides(
+        prof,
+        skills.extract_skills_rules(scp.corpus_text(prof), p.skills_taxonomy()),
+        p.skills_taxonomy())
+    ca = careers.match_occupations(sk, p.occupations())
+    titles = set(ca["title"])
+    assert "Automotive Service Technician & Mechanic" in titles
+    assert titles.isdisjoint({"Welder / Welding Fabricator",
+                              "Nursing Assistant (CNA/LNA)",
+                              "Certified Welding Inspector (AWS CWI)"})
+
+
+def test_auto_recs_are_automotive():
+    p = get_provider()
+    prof = scp.load_profile(Path("data/profiles/LI-AUTO-001.json"))
+    sk = scp.apply_profile_overrides(
+        prof,
+        skills.extract_skills_rules(scp.corpus_text(prof), p.skills_taxonomy()),
+        p.skills_taxonomy())
+    ca = careers.match_occupations(sk, p.occupations())
+    ca_ids = recommendations.careers_with_skill_ids(ca, p.occupations())
+    recs = recommendations.generate_recommendations(
+        sk, ca_ids, employers.employers_with_distance(p.employers()))
+    assert len(recs) > 0
+    # welding-specific and clinical recs must never fire under automotive;
+    # manufacturing-adjacent recs (CNC etc.) are legitimate shared-domain output
+    assert not recs["recommendation"].str.contains(
+        "weld|patient|nursing", case=False).any()

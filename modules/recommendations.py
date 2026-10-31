@@ -16,6 +16,43 @@ EFFORT_ORDER = {"Low": 0, "Moderate": 1, "High": 2}
 
 # Healthcare-domain skill ids; used to gate recommendations so e.g.
 # welding recs never fire for a healthcare curriculum.
+AUTO_SKILL_IDS = {
+    "vehicle_maintenance", "tire_service", "brake_suspension",
+    "steering_suspension", "auto_electrical", "computer_diagnostics",
+    "service_documentation", "diagnostic_equipment", "shop_safety",
+    "engine_fundamentals", "drivetrain", "vehicle_inspection",
+    "hvac_auto", "customer_communication", "hybrid_ev_systems",
+    "high_voltage_safety", "adas_systems", "vehicle_networks",
+    "diesel_systems", "fleet_maintenance",
+}
+
+
+WELDING_SKILL_IDS = {
+    "mig_welding", "tig_welding", "stick_welding", "fcaw_welding",
+    "oxyfuel_cutting", "plasma_cutting", "weld_symbols",
+    "welding_positions", "welding_safety", "welding_inspection",
+    "thermo_plastic_welding", "grinding_finishing", "metallurgy_basics",
+    "fabrication_fitting", "blueprint_reading", "material_preparation",
+}
+
+
+def _domain_of(sid: str) -> str:
+    if sid in HEALTH_SKILL_IDS:
+        return "healthcare"
+    if sid in AUTO_SKILL_IDS:
+        return "automotive"
+    if sid in WELDING_SKILL_IDS:
+        return "welding"
+    if sid in TRANSFERABLE_IDS_HINT or sid == "general":
+        return "general"
+    return "manufacturing"
+
+
+TRANSFERABLE_IDS_HINT = {
+    "communication", "attention_to_detail", "teamwork", "problem_solving",
+}
+
+
 HEALTH_SKILL_IDS = {
     "patient_care", "personal_care_assistance", "vital_signs",
     "patient_safety", "patient_communication", "mobility_assistance",
@@ -190,6 +227,50 @@ CATALOG: list[dict] = [
         "present in unpublished curriculum.",
     },
     {
+        "trigger_skills": ["hybrid_ev_systems", "high_voltage_safety"],
+        "title": "Add hybrid/EV awareness and high-voltage safety module",
+        "gap": "Hybrid/EV systems and high-voltage safety not established by available evidence",
+        "effort": "Moderate",
+        "benefit": "Vehicle electrification affects every documented GST skill "
+        "area; high-voltage awareness is a safety prerequisite before EV service.",
+        "rationale": "Awareness-level module can precede capital equipment; full "
+        "EV service capability requires instructor training and PPE - do not "
+        "assume low-cost implementation.",
+        "connection": "Extends documented electrical-systems instruction",
+        "validation": "Confirm EV demand with regional dealers and fleet operators",
+        "confidence": "Moderate confidence; statewide EV growth documented "
+        "generally, regional service demand requires employer validation.",
+    },
+    {
+        "trigger_skills": ["adas_systems", "vehicle_networks"],
+        "title": "Introduce ADAS and vehicle-network diagnostics exposure",
+        "gap": "ADAS and vehicle-network content not established by available evidence",
+        "effort": "Moderate",
+        "benefit": "Modern vehicles increasingly require ADAS calibration "
+        "awareness and CAN-bus diagnostic literacy.",
+        "rationale": "Builds on documented computer-diagnostics instruction; "
+        "scan-tool capability may already exist in 'latest shop equipment' - "
+        "verify before recommending purchases.",
+        "connection": "Builds on documented computer-based diagnosis",
+        "validation": "Confirm scan-tool/ADAS capability already in the shop",
+        "confidence": "Moderate confidence; technology relevance is high but "
+        "existing shop coverage is unpublished.",
+    },
+    {
+        "trigger_skills": ["diesel_systems", "fleet_maintenance"],
+        "title": "Add diesel and fleet-maintenance awareness unit",
+        "gap": "Diesel/heavy-equipment and fleet content not established by available evidence",
+        "effort": "Low",
+        "benefit": "Municipal, transit, and heavy-equipment fleets are "
+        "documented regional employer types with adjacent entry points.",
+        "rationale": "Awareness unit leverages documented maintenance "
+        "procedures; deep diesel competency requires dedicated instruction.",
+        "connection": "Applies documented maintenance skills to adjacent fleets",
+        "validation": "Validate fleet-hiring demand with RCT and municipal shops",
+        "confidence": "Moderate confidence; fleet employers exist regionally "
+        "but hiring patterns are unverified.",
+    },
+    {
         "trigger_skills": ["material_handling"],
         "title": "Add rigging and material-handling safety",
         "gap": "Rigging/material handling not established by available evidence",
@@ -253,12 +334,13 @@ def generate_recommendations(
     rows = []
     for entry in CATALOG:
         triggers = entry["trigger_skills"]
-        # Domain gate: an entry applies only when its triggers live in a
-        # domain the curriculum actually teaches (prevents welding recs
-        # on an LNA profile and vice-versa).
-        trig = set(triggers)
-        entry_health = bool(trig & HEALTH_SKILL_IDS) and not (trig - HEALTH_SKILL_IDS)
-        if entry_health != bool(present_ids & HEALTH_SKILL_IDS):
+        # Domain gate: an entry applies only when its trigger domains are
+        # detected in the curriculum's present skills (prevents welding
+        # recs on LNA/Auto profiles and vice-versa; generalizes to new
+        # domains via _domain_of).
+        entry_domains = {_domain_of(t) for t in triggers} - {"general"}
+        detected = {_domain_of(s) for s in present_ids} - {"general"}
+        if entry_domains and detected and not entry_domains <= detected:
             continue
         fires = any(
             (t in ALWAYS_GAP) or presence.get(t) not in (STATUS_DOCUMENTED, STATUS_INFERRED)
