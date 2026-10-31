@@ -41,6 +41,19 @@ The app runs end-to-end in **Demonstration Mode** with no credentials. Set
 `OPENAI_API_KEY` (see `.env.example`) to enable optional AI-assisted extraction in
 Module 1. The deterministic rules engine remains the fallback and default.
 
+### Live Analysis Mode (OpenAI)
+
+- Uses the **Responses API** with strict JSON-Schema output (`text.format`), validated
+  server-side before any result influences the analysis.
+- `OPENAI_MODEL` overrides the default (`gpt-4o-mini`).
+- A **Test OpenAI connection** button in Module 1 and AI Comparison performs a small
+  authenticated request and reports categorized errors (auth / billing / rate limit /
+  model / network).
+- The **AI Comparison** page runs the same curriculum through both engines and shows
+  per-skill diffs, career-score deltas, and recommendation differences with the model's
+  evidence. AI output never changes verified wage or employer data.
+- The key is read only from the environment — never displayed, logged, or committed.
+
 ## Architecture
 
 ```

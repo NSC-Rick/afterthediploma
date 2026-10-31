@@ -12,6 +12,7 @@ import streamlit as st
 from modules import (
     ai_client,
     careers,
+    compare,
     curriculum,
     earnings,
     employers,
@@ -108,6 +109,7 @@ def nav_options(has_analysis: bool) -> list[str]:
             "3 · Regional Employment",
             "4 · Earnings Intelligence",
             "5 · Curriculum Advisor",
+            "AI Comparison",
         ]
     options.append("Data & Methodology")
     return options
@@ -221,8 +223,9 @@ st.markdown(
 live = ai_client.openai_available()
 if live:
     st.markdown(
-        '<div class="live-banner"><b>Live Analysis Mode available</b> - an OpenAI API key is '
-        "configured. AI extraction can be enabled in Module 1. Employment and wage data remain "
+        f'<div class="live-banner"><b>Live Analysis Mode available</b> - OpenAI key configured '
+        f"(model: {ai_client.configured_model()}). AI extraction can be enabled in Module 1 and "
+        "compared side-by-side under AI Comparison. Employment and wage data remain "
         "reference datasets regardless of AI mode.</div>",
         unsafe_allow_html=True,
     )
@@ -264,6 +267,12 @@ with st.sidebar:
             help="Shown on every page so results are never misread as AI-generated when they are not.",
         )
         st.caption("Curriculum: " + st.session_state.curriculum_label)
+    ai_note = (
+        f"AI analysis: available ({ai_client.configured_model()})"
+        if ai_client.openai_available()
+        else "AI analysis: not configured"
+    )
+    st.caption(ai_note)
 
 
 STATUS_CHIP = {
@@ -833,6 +842,15 @@ def page_curriculum():
         "failures fall back to the deterministic engine.",
     )
     st.session_state.use_ai = use_ai
+    if live:
+        if st.button("Test OpenAI connection", key="m1-aitest"):
+            with st.spinner("Sending a small authenticated request..."):
+                result = ai_client.test_connection()
+            (st.success if result["ok"] else st.error)(result["message"])
+        st.caption(
+            "For a side-by-side deterministic vs AI comparison of this curriculum, "
+            "open the **AI Comparison** section in the sidebar."
+        )
     if st.button("Re-run analysis", type="primary"):
         warning = run_analysis(use_ai)
         if warning:
@@ -1112,6 +1130,97 @@ def page_recommendations():
     st.plotly_chart(fig, width="stretch")
 
 
+def page_compare():
+    if not require_analysis():
+        return
+    st.subheader("AI vs Deterministic — side-by-side")
+    st.caption(
+        "Compares what each engine extracts from the SAME curriculum input. "
+        "Verified wage and employer data are identical across engines — AI output "
+        "never changes reference data."
+    )
+    if not ai_client.openai_available():
+        st.info(
+            "Set OPENAI_API_KEY to enable AI-assisted analysis. The deterministic "
+            "engine results on the left are always available."
+        )
+        return
+
+    col_test, col_run = st.columns(2)
+    if col_test.button("Test OpenAI connection", key="cmp-test"):
+        with st.spinner("Sending a small authenticated request..."):
+            result = ai_client.test_connection()
+        (st.success if result["ok"] else st.error)(result["message"])
+
+    if col_run.button(
+        "Run comparison on active curriculum", type="primary", key="cmp-run"
+    ):
+        text = st.session_state.curriculum_text
+        rules_df = skills.extract_skills_rules(text, REF["taxonomy"])
+        try:
+            with st.spinner("Analyzing curriculum with OpenAI..."):
+                ai_skills = ai_client.analyze_curriculum(text)
+            ai_df = skills.merge_ai_results(rules_df, ai_skills, REF["taxonomy"])
+            rules_ca = careers.match_occupations(rules_df, REF["occupations"])
+            ai_ca = careers.match_occupations(ai_df, REF["occupations"])
+            rules_ids = recommendations.careers_with_skill_ids(rules_ca, REF["occupations"])
+            ai_ids = recommendations.careers_with_skill_ids(ai_ca, REF["occupations"])
+            emp_geo = ref_employers()
+            st.session_state.ai_comparison = {
+                "version": st.session_state.curriculum_version,
+                "skills": compare.diff_skills(rules_df, ai_df),
+                "careers": compare.diff_careers(rules_ca, ai_ca),
+                "recs": compare.diff_recommendations(
+                    recommendations.generate_recommendations(rules_df, rules_ids, emp_geo),
+                    recommendations.generate_recommendations(ai_df, ai_ids, emp_geo),
+                ),
+            }
+        except ai_client.AIClientError as exc:
+            st.session_state.ai_comparison = None
+            st.error(f"AI analysis failed ({exc.category}): {exc}")
+
+    comp = st.session_state.get("ai_comparison")
+    if not comp:
+        st.caption("Run the comparison to see engine differences.")
+        return
+    if comp["version"] != st.session_state.curriculum_version:
+        st.warning("Curriculum changed since the comparison ran — re-run it.")
+        return
+
+    sd, cd, rd = comp["skills"], comp["careers"], comp["recs"]
+    changed = sd[sd.change != "agreement"]
+
+    st.markdown("### Skills")
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Skills where engines agree", int((sd.change == "agreement").sum()))
+    m2.metric("AI-upgraded findings", int((sd.change == "ai_upgraded").sum()))
+    m3.metric("AI-only / downgraded", int((sd.change.isin(["ai_only", "ai_downgraded"])).sum()))
+    show_all = st.checkbox("Show all skills (not just differences)", key="cmp-all")
+    view = sd if show_all else changed
+    st.dataframe(
+        view[["skill", "category", "rules_status", "ai_status", "change",
+              "ai_evidence", "ai_rationale"]],
+        width="stretch", hide_index=True,
+    )
+    st.caption(
+        "ai_evidence / ai_rationale are the model's own support for its finding — "
+        "inferred skills are never confirmed competencies."
+    )
+
+    st.markdown("### Career pathway score differences")
+    deltas = cd[cd.score_delta != 0]
+    if deltas.empty:
+        st.info("No score differences between engines.")
+    else:
+        st.dataframe(
+            deltas[["title", "pathway", "rules_score", "ai_score", "score_delta",
+                    "ai_missing"]],
+            width="stretch", hide_index=True,
+        )
+    st.markdown("### Curriculum recommendations")
+    st.dataframe(rd, width="stretch", hide_index=True)
+
+
 def page_sources():
     st.subheader("Data & Methodology")
     st.markdown(
@@ -1153,6 +1262,7 @@ PAGES = {
     "3 · Regional Employment": page_employers,
     "4 · Earnings Intelligence": page_earnings,
     "5 · Curriculum Advisor": page_recommendations,
+    "AI Comparison": page_compare,
     "Data & Methodology": page_sources,
 }
 
