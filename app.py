@@ -19,6 +19,7 @@ from modules import (
     curriculum,
     earnings,
     employers,
+    intel,
     profile_ui,
     recommendations,
     report,
@@ -125,6 +126,7 @@ def nav_options(has_analysis: bool) -> list[str]:
             "4 · Earnings Intelligence",
             "5 · Curriculum Advisor",
             "AI Comparison",
+            "Regional Intelligence",
             "Reports",
         ]
     options.append("Data & Methodology")
@@ -1343,6 +1345,85 @@ def page_compare():
     st.dataframe(rd, width="stretch", hide_index=True)
 
 
+def page_intel():
+    if not require_analysis():
+        return
+    st.subheader("Regional Intelligence")
+    g = get_geo_ref()
+    a = st.session_state.analysis
+    scope = intel.research_scope(a, a["skills"], a["careers"])
+    st.caption(
+        f"{st.session_state.curriculum_label} · center: {g['name']} "
+        f"({g['latitude']:.4f}, {g['longitude']:.4f}) · scope derived from "
+        f"{len(scope['skills'])} skills and {len(scope['primary_occupations'])} "
+        "primary pathways."
+    )
+
+    res = st.session_state.get("intel_result")
+    cur_fp = intel.fingerprint(scope, g, intel.DEFAULT_CONFIG)
+    if res and res["fingerprint"] != cur_fp:
+        st.info("Curriculum or geography changed — intelligence may be stale.")
+        res = None
+    if not res:
+        st.info(
+            "No regional intelligence collected yet. One deliberate research "
+            "operation gathers all three layers; results are then reused by every "
+            "module and the PDF report."
+        )
+        if st.button("Run regional research", type="primary", key="intel-run"):
+            st.session_state.intel_result = intel.run_research(
+                scope, g, intel.DEFAULT_CONFIG
+            )
+            st.session_state.intel_runs = st.session_state.get("intel_runs", 0) + 1
+            st.rerun()
+        st.caption(
+            "Provider: bundled demonstration dataset (labeled). A live retrieval "
+            "adapter can be configured via the provider interface — paid sources "
+            "require approval and credentials."
+        )
+        return
+
+    st.caption(
+        f"Collected {res['collected_at']} · provider: {res['provider']} · "
+        f"{len(res['observations'])} observations · "
+        f"research runs this session: {st.session_state.get('intel_runs', 1)}"
+    )
+    if st.button("Re-run research", key="intel-rerun"):
+        st.session_state.intel_result = intel.run_research(scope, g)
+        st.session_state.intel_runs += 1
+        st.rerun()
+
+    for layer in intel.LAYERS:
+        obs = res["by_layer"][layer["key"]]
+        st.markdown(f"### {layer['label']} — {layer['band']}")
+        st.caption(layer["question"])
+        st.markdown(intel.summarize_layer(layer["key"], obs, scope))
+        for o in obs[:3]:
+            st.markdown(
+                f"**{o.organization}** ({o.city}, {o.state} — {o.distance_miles} mi) "
+                f"· `{o.category}` · {o.observation} "
+                f"*Implication:* {o.curriculum_implication}"
+            )
+        if obs:
+            with st.expander(f"View supporting intelligence ({len(obs)})"):
+                st.dataframe(
+                    pd.DataFrame([{
+                        "Organization": o.organization,
+                        "Development": o.observation,
+                        "Skills": "; ".join(o.skills),
+                        "Source": o.source_url or "—",
+                        "Published": o.source_published or "—",
+                        "Evidence": o.evidence_class,
+                        "Confidence": o.confidence,
+                    } for o in obs]),
+                    width="stretch", hide_index=True,
+                )
+    if res["unlocated"]:
+        with st.expander(f"Unlocated evidence ({len(res['unlocated'])})"):
+            for o in res["unlocated"]:
+                st.caption(f"{o.organization}: {o.observation} — {o.evidence_class}")
+
+
 def page_reports():
     if not require_analysis():
         return
@@ -1376,6 +1457,7 @@ def page_reports():
                     "recommendations": recs,
                     "sources": REF["sources"],
                     "job_listings": REF["job_listings"],
+                    "intel": st.session_state.get("intel_result"),
                 },
                 get_geo_ref(),
                 theme=THEME,
@@ -1443,6 +1525,7 @@ PAGES = {
     "4 · Earnings Intelligence": page_earnings,
     "5 · Curriculum Advisor": page_recommendations,
     "AI Comparison": page_compare,
+    "Regional Intelligence": page_intel,
     "Reports": page_reports,
     "Data & Methodology": page_sources,
 }

@@ -410,6 +410,35 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
         story.append(Spacer(1, 0.06 * inch))
     story.append(PageBreak())
 
+    # ------------------------------------------------- 6b. regional intelligence
+    intel_res = datasets.get("intel")
+    story += [_p("Regional Intelligence Outlook", st["h1"])]
+    if intel_res:
+        story.append(_p(
+            f"Collected {intel_res['collected_at']} via provider "
+            f"'{intel_res['provider']}' ({len(intel_res['observations'])} "
+            "observations). Cached results - no new research calls were made for "
+            "this report.", st["small"]))
+        from .intel import LAYERS, summarize_layer
+        for layer in LAYERS:
+            obs = intel_res["by_layer"][layer["key"]]
+            story.append(KeepTogether([
+                _p(f"{layer['label']} ({layer['band']})", st["h2"])]))
+            story.append(_p(summarize_layer(layer["key"], obs, intel_res["scope"]),
+                            st["body"]))
+            if obs:
+                rows = [["Organization", "Development", "Evidence", "Conf."]]
+                for o in obs[:4]:
+                    rows.append([o.organization, o.observation[:160],
+                                 o.evidence_class, o.confidence])
+                story.append(_t(rows, [1.5 * inch, 3.6 * inch, 1.4 * inch, 0.5 * inch]))
+    else:
+        story.append(_p(
+            "Regional intelligence has not been collected for this analysis - "
+            "run a research operation in the Regional Intelligence module to "
+            "populate this section.", st["body"]))
+    story.append(PageBreak())
+
     # ------------------------------------------------- 7. institutional actions
     quick = recs_df[recs_df.group == "Quick wins"] if len(recs_df) else recs_df
     strategic = recs_df[recs_df.group == "Strategic opportunities"] if len(recs_df) else recs_df
