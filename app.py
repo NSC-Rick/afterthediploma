@@ -127,6 +127,49 @@ def curriculum_employers() -> pd.DataFrame:
     return employers.relevant_employers(df, set(ca["title"]), present)
 
 
+def _render_lifestyle(occ_row, careers_df, emp_geo) -> None:
+    """Career Lifestyle Profile v1.0 - evidence-scored where data exists."""
+    from modules import lifestyle
+    pw = earnings.pathway_wages(
+        careers_df[careers_df.soc_code == occ_row["soc_code"]], REF["wages"])
+    wage = pw.iloc[0].to_dict() if len(pw) else {}
+    prof = lifestyle.build_profile(
+        occ_row, careers_df, wage, emp_geo,
+        get_geo_ref().get("state", "Vermont"))
+    st.markdown("#### Career Lifestyle Profile")
+    qdims = lifestyle.quantitative_dims(prof)
+    ddims = lifestyle.descriptive_dims(prof)
+    if len(qdims) >= 3:
+        fig = go.Figure(go.Scatterpolar(
+            r=[d["score"] for d in qdims] + [qdims[0]["score"]],
+            theta=[f'{d["label"]} ({d["band"] or ""})' for d in qdims]
+                  + [qdims[0]["label"]],
+            fill="toself", line_color="#2563eb", name=occ_row["title"]))
+        fig.update_layout(polar=dict(radialaxis=dict(range=[0, 100])),
+                          height=300, margin=dict(t=20, b=10), showlegend=False)
+        st.plotly_chart(fig, width="stretch")
+    else:
+        st.caption(
+            "Fewer than three lifestyle dimensions have sufficient evidence "
+            "for a comparison chart - shown as individual indicators instead.")
+    for d in prof["dimensions"]:
+        chip = STATUS_CHIP.get(d["evidence_status"], "")
+        score_txt = (f" **{d['score']:.0f}/100** — *{d['band']}*"
+                     if d["score"] is not None else " *not assessed*")
+        with st.expander(f"{d['label']}{score_txt}{chip}", expanded=False):
+            st.write(d["summary"])
+            if d["limitations"]:
+                st.caption("Limitations: " + "; ".join(d["limitations"]))
+    st.caption(
+        f"Missing evidence — "
+        + ", ".join(d["label"] for d in prof["dimensions"]
+                    if d["evidence_status"] == "insufficient_evidence")
+        + " (shown honestly rather than estimated).")
+    for q in prof["student_reflection"]:
+        st.markdown(f"• *{q}*")
+    st.info(lifestyle.CAVEAT)
+
+
 def nav_options(has_analysis: bool) -> list[str]:
     """Sidebar navigation; intelligence modules unlock after analysis."""
     options = ["Home", "Select Curriculum", "Curriculum Library"]
@@ -1116,6 +1159,7 @@ def page_careers():
     choice = st.selectbox("Occupation", ca["title"].tolist())
     row = ca[ca.title == choice].iloc[0]
     st.markdown(f"**{row['title']}** ({row['soc_code']}) — {careers.PATHWAY_LABELS[row['pathway']]}")
+    _render_lifestyle(row, ca, curriculum_employers())
     st.markdown(f"**Score:** {row['compatibility_score']}/100")
     st.info(careers.explain_score(row))
     c1, c2, c3 = st.columns(3)

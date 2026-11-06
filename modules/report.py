@@ -397,6 +397,35 @@ def build_report(analysis: dict, profile: dict | None, datasets: dict,
             + ". Rows show 10th/90th percentiles where available; missing "
             "cells are marked '—' rather than substituted.",
             st["note"]))
+    # ------------------------------------- 3b. career lifestyle profiles
+    try:
+        from .lifestyle import build_profile, quantitative_dims, CAVEAT
+        from .employers import relevant_employers as _re
+        _pres = set(skills_df.loc[
+            skills_df.status.isin(["documented", "inferred"]), "skill_id"])
+        _emp_rel = _re(emp_df, set(careers_df["title"]), _pres)
+        story.append(_p("Career lifestyle profiles", st["h2"]))
+        for _, occ in careers_df.head(6).iterrows():
+            wr = wages_df[wages_df.soc_code == occ["soc_code"]]
+            prof = build_profile(occ, careers_df,
+                                 wr.iloc[0].to_dict() if len(wr) else {},
+                                 _emp_rel, geo_ref.get("state", "Vermont"))
+            qd = quantitative_dims(prof)
+            scored = "; ".join(
+                f"{d['label']}: {d['score']:.0f}/100 ({d['band']})"
+                for d in qd) or "No evidence-scored dimensions"
+            insuff = ", ".join(
+                d["label"] for d in prof["dimensions"]
+                if d["evidence_status"] == "insufficient_evidence")
+            story.append(_p(
+                f"<b>{occ['title']}</b> — {scored}."
+                + (f" Not assessed (insufficient evidence): {insuff}."
+                   if insuff else ""),
+                st["small"]))
+        story.append(_p(CAVEAT.replace("&", "&amp;"), st["note"]))
+    except Exception:
+        pass
+
     story.append(PageBreak())
 
     # ------------------------------------------------- 5. regional employment
