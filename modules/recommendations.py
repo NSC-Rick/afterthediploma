@@ -36,6 +36,18 @@ WELDING_SKILL_IDS = {
 }
 
 
+HUMANITIES_SKILL_IDS = {
+    "historical_inquiry", "primary_source_interpretation",
+    "secondary_source_evaluation", "evidence_argumentation",
+    "chronological_reasoning", "geographic_reasoning",
+    "cultural_interpretation", "economic_literacy", "civic_literacy",
+    "human_rights_awareness", "research_planning",
+    "digital_research_literacy", "gis_mapping",
+    "archival_practices", "oral_history_interviewing",
+    "public_interpretation",
+}
+
+
 def _domain_of(sid: str) -> str:
     if sid in HEALTH_SKILL_IDS:
         return "healthcare"
@@ -43,6 +55,8 @@ def _domain_of(sid: str) -> str:
         return "automotive"
     if sid in WELDING_SKILL_IDS:
         return "welding"
+    if sid in HUMANITIES_SKILL_IDS:
+        return "humanities"
     if sid in TRANSFERABLE_IDS_HINT or sid == "general":
         return "general"
     return "manufacturing"
@@ -50,6 +64,9 @@ def _domain_of(sid: str) -> str:
 
 TRANSFERABLE_IDS_HINT = {
     "communication", "attention_to_detail", "teamwork", "problem_solving",
+    "critical_thinking", "oral_presentation", "information_literacy",
+    "community_engagement", "self_direction", "troubleshooting",
+    "workplace_safety", "time_management",
 }
 
 
@@ -269,6 +286,52 @@ CATALOG: list[dict] = [
         "validation": "Validate fleet-hiring demand with RCT and municipal shops",
         "confidence": "Moderate confidence; fleet employers exist regionally "
         "but hiring patterns are unverified.",
+    },
+    {
+        "trigger_skills": ["digital_research_literacy", "information_literacy"],
+        "title": "Formalize digital research and information-literacy instruction",
+        "gap": "Digital research and information literacy not established by "
+        "available evidence",
+        "effort": "Low",
+        "benefit": "Strengthens research, records, and library-adjacent "
+        "pathways without new equipment.",
+        "rationale": "Builds on documented research planning; faculty "
+        "confirmation needed on current coverage.",
+        "connection": "Extends documented research planning",
+        "validation": "Confirm coverage with faculty before treating as a gap",
+        "confidence": "Moderate; source describes research topics but not "
+        "digital-tool instruction.",
+    },
+    {
+        "trigger_skills": ["gis_mapping"],
+        "title": "Introduce introductory GIS and geospatial visualization",
+        "gap": "GIS and map visualization not established by available evidence",
+        "effort": "Moderate",
+        "benefit": "Connects documented geographic reasoning to a growing "
+        "occupational tool set; supports adjacent GIS technician pathway.",
+        "rationale": "Geographic reasoning is documented; GIS software is an "
+        "optional enrichment, not a requirement.",
+        "connection": "Extends documented geographic reasoning",
+        "validation": "Confirm faculty interest and regional GIS demand",
+        "confidence": "Moderate; GIS pathway is adjacent and requires "
+        "supplemental training regardless.",
+    },
+    {
+        "trigger_skills": ["oral_history_interviewing", "archival_practices",
+                         "public_interpretation"],
+        "title": "Pilot local-history and community-research project",
+        "gap": "Oral-history, archival, and public-interpretation skills not "
+        "established by available evidence",
+        "effort": "Low",
+        "benefit": "Translates academic competencies into portfolio artifacts "
+        "relevant to cultural-sector and community pathways.",
+        "rationale": "Regional cultural institutions (museums, archives) "
+        "offer plausible project partners.",
+        "connection": "Applies documented cultural interpretation and "
+        "research planning to local evidence",
+        "validation": "Confirm partnerships and faculty capacity",
+        "confidence": "Moderate; institutions are real but partnership "
+        "willingness is unverified.",
     },
     {
         "trigger_skills": ["material_handling"],

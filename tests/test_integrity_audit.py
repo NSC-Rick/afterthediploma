@@ -14,7 +14,7 @@ import pytest
 from modules import careers, earnings, employers, intel, recommendations, scp, skills
 from modules.data_sources import get_provider
 
-PROFILES = ["LI-WELD-001", "LI-LNA-001", "LI-AUTO-001", "SAMPLE-WELD-001"]
+PROFILES = ["LI-WELD-001", "LI-LNA-001", "LI-AUTO-001", "LI-HIST-001", "SAMPLE-WELD-001"]
 FOREIGN = {  # domain -> skill_ids that must never appear on that profile
     "LI-LNA-001": {"mig_welding", "tig_welding", "stick_welding",
                    "oxyfuel_cutting", "blueprint_reading", "weld_symbols",

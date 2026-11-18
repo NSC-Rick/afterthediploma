@@ -1,0 +1,299 @@
+{
+  "scp_version": "1.0",
+  "profile_id": "LI-HIST-001",
+  "institution": {
+    "name": "Lyndon Institute",
+    "location": "Lyndon Center, Vermont",
+    "institution_type": "Independent high school",
+    "website": "https://www.lyndoninstitute.org"
+  },
+  "program": {
+    "name": "History & Social Studies (umbrella profile)",
+    "cip_code": null,
+    "level": "Secondary academic",
+    "description": "Academic humanities curriculum reconstructed from publicly documented LI courses; tests whether the analysis engine supports non-CTE academic programs.",
+    "duration": "Not published - umbrella academic profile",
+    "instructional_hours": null
+  },
+  "source": {
+    "source_type": "public_program_description",
+    "title": "After the Diploma public-source curriculum reconstruction v0.1",
+    "url": "https://www.lyndoninstitute.org/academics",
+    "retrieved_date": "2026-11-18",
+    "notes": "NOT an official LI syllabus. Seven courses are publicly documented; specific competencies are labeled inferred or proposed where the source does not establish them. Faculty validation required before institutional use.",
+    "original_text": "Lyndon Institute offers History and Social Studies coursework including Culture and Geography (rivers and civilization; geography and culture; currencies, trade routes and exports; tourism, food production, the space race; Alaska, colonization, economy and climate change; student-selected research topics), Genocide and Human Rights (historical and contemporary human rights cases including Anne Frank/Holocaust studies, Armenian genocide and Uyghurs), AP European History, AP U.S. History, Civics and Constitutional Law, Sociology, and Sophomore Humanities Honors. School-wide Portrait of a Graduate competencies include communication, self-direction, creative and practical problem-solving, collaboration, and community engagement.",
+    "evidence": [
+      {
+        "field": "courses",
+        "quote": "Culture and Geography; AP European History; AP U.S. History; Civics and Constitutional Law; Sociology; Genocide and Human Rights; Sophomore Humanities Honors"
+      },
+      {
+        "field": "culture_geography_topics",
+        "quote": "rivers and civilization; currencies, trade routes and exports; tourism, food production; student-selected research topics (S2)"
+      },
+      {
+        "field": "genocide_hr_topics",
+        "quote": "historical and contemporary human rights cases including Anne Frank/Holocaust, Armenian genocide and Uyghurs (S4)"
+      },
+      {
+        "field": "graduate_competencies",
+        "quote": "communication, self-direction, creative/practical problem-solving, collaboration, community engagement (S1)"
+      }
+    ]
+  },
+  "instructional_units": [
+    {
+      "unit_id": "U1",
+      "title": "Thinking Like a Historian",
+      "description": "Proposed pilot unit - not verified LI sequence.",
+      "hours": null,
+      "outcomes": []
+    },
+    {
+      "unit_id": "U2",
+      "title": "Geography, Culture and Historical Change",
+      "description": "Inspired by documented S2 topics.",
+      "hours": null,
+      "outcomes": []
+    },
+    {
+      "unit_id": "U3",
+      "title": "Economies, Trade and Global Connections",
+      "description": "Inspired by documented S2 topics.",
+      "hours": null,
+      "outcomes": []
+    },
+    {
+      "unit_id": "U4",
+      "title": "Government, Rights and Civic Institutions",
+      "description": "Proposed from documented course title S3.",
+      "hours": null,
+      "outcomes": []
+    },
+    {
+      "unit_id": "U5",
+      "title": "Human Rights and Historical Memory",
+      "description": "Inspired by documented S4 topics.",
+      "hours": null,
+      "outcomes": []
+    },
+    {
+      "unit_id": "U6",
+      "title": "History, Technology and Society",
+      "description": "Proposed pilot unit.",
+      "hours": null,
+      "outcomes": []
+    },
+    {
+      "unit_id": "U7",
+      "title": "Local and Regional History",
+      "description": "Proposed pilot unit.",
+      "hours": null,
+      "outcomes": []
+    },
+    {
+      "unit_id": "U8",
+      "title": "History Skills in the Workplace",
+      "description": "Proposed After the Diploma extension.",
+      "hours": null,
+      "outcomes": []
+    }
+  ],
+  "learning_outcomes": [
+    {
+      "outcome": "Interpret geography, culture, economies and their historical connections",
+      "source_evidence": "S2 documented Culture and Geography topics"
+    },
+    {
+      "outcome": "Examine historical and contemporary human-rights cases",
+      "source_evidence": "S4 documented Genocide and Human Rights topics"
+    }
+  ],
+  "skills": [
+    {
+      "skill": "Geographic and spatial reasoning",
+      "skill_id": "geographic_reasoning",
+      "category": "core",
+      "status": "documented",
+      "evidence": "S2: rivers and civilization; geography and culture; Alaska, colonization, climate change"
+    },
+    {
+      "skill": "Cultural interpretation",
+      "skill_id": "cultural_interpretation",
+      "category": "core",
+      "status": "documented",
+      "evidence": "S2: geography and culture; food production; student-selected research topics"
+    },
+    {
+      "skill": "Economic systems literacy",
+      "skill_id": "economic_literacy",
+      "category": "supporting",
+      "status": "documented",
+      "evidence": "S2: currencies, trade routes and exports"
+    },
+    {
+      "skill": "Human rights awareness",
+      "skill_id": "human_rights_awareness",
+      "category": "supporting",
+      "status": "documented",
+      "evidence": "S4: Holocaust, Armenian genocide, Uyghur cases"
+    },
+    {
+      "skill": "Civic and institutional literacy",
+      "skill_id": "civic_literacy",
+      "category": "supporting",
+      "status": "inferred",
+      "evidence": "Inferred from documented course title (S3): Civics and Constitutional Law"
+    },
+    {
+      "skill": "Historical inquiry and question formulation",
+      "skill_id": "historical_inquiry",
+      "category": "core",
+      "status": "inferred",
+      "evidence": "Inferred from discipline structure; not explicitly described per course"
+    },
+    {
+      "skill": "Chronological and causal reasoning",
+      "skill_id": "chronological_reasoning",
+      "category": "core",
+      "status": "inferred",
+      "evidence": "Inferred from discipline; no explicit course evidence"
+    },
+    {
+      "skill": "Research planning",
+      "skill_id": "research_planning",
+      "category": "supporting",
+      "status": "documented",
+      "evidence": "S2: student-selected research topics"
+    },
+    {
+      "skill": "Self-direction",
+      "skill_id": "self_direction",
+      "category": "transferable",
+      "status": "documented",
+      "evidence": "S2: student-selected research topics; S1 graduate competency"
+    },
+    {
+      "skill": "Communication (written and oral)",
+      "skill_id": "communication",
+      "category": "transferable",
+      "status": "inferred",
+      "evidence": "Aligned to S1 Portrait of a Graduate; course-level assessment not verified"
+    },
+    {
+      "skill": "Collaboration",
+      "skill_id": "teamwork",
+      "category": "transferable",
+      "status": "inferred",
+      "evidence": "Aligned to S1 graduate competencies; not verified per course"
+    },
+    {
+      "skill": "Practical problem-solving",
+      "skill_id": "troubleshooting",
+      "category": "transferable",
+      "status": "inferred",
+      "evidence": "Aligned to S1 graduate competencies"
+    },
+    {
+      "skill": "Community engagement",
+      "skill_id": "community_engagement",
+      "category": "transferable",
+      "status": "inferred",
+      "evidence": "Aligned to S1 graduate competencies"
+    },
+    {
+      "skill": "Critical thinking",
+      "skill_id": "critical_thinking",
+      "category": "transferable",
+      "status": "inferred",
+      "evidence": "Aligned to S1 graduate competencies"
+    },
+    {
+      "skill": "Oral presentation",
+      "skill_id": "oral_presentation",
+      "category": "transferable",
+      "status": "inferred",
+      "evidence": "Aligned to S1; not verified per course"
+    },
+    {
+      "skill": "Primary-source interpretation",
+      "skill_id": "primary_source_interpretation",
+      "category": "core",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "Secondary-source evaluation",
+      "skill_id": "secondary_source_evaluation",
+      "category": "core",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "Evidence-based argumentation",
+      "skill_id": "evidence_argumentation",
+      "category": "core",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "Information literacy",
+      "skill_id": "information_literacy",
+      "category": "transferable",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "Digital research and data literacy",
+      "skill_id": "digital_research_literacy",
+      "category": "adjacent",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "GIS and map visualization",
+      "skill_id": "gis_mapping",
+      "category": "adjacent",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "Archival and records management",
+      "skill_id": "archival_practices",
+      "category": "adjacent",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "Interviewing and oral history",
+      "skill_id": "oral_history_interviewing",
+      "category": "adjacent",
+      "status": "unknown",
+      "evidence": ""
+    },
+    {
+      "skill": "Public interpretation and storytelling",
+      "skill_id": "public_interpretation",
+      "category": "adjacent",
+      "status": "unknown",
+      "evidence": ""
+    }
+  ],
+  "credentials": [],
+  "assessments": [
+    {
+      "name": "AP examinations (European History, U.S. History)",
+      "type": "external_exam",
+      "status": "documented",
+      "evidence": "AP course names documented in public sources (S3, S5)"
+    }
+  ],
+  "metadata": {
+    "created_date": "2026-11-18",
+    "last_modified": "2026-11-18",
+    "editor": "Devin (automated profile construction)",
+    "review_status": "draft",
+    "data_status": "Public-source reconstruction - faculty validation required",
+    "notes": "Academic-curriculum pilot; not an official LI syllabus. Umbrella profile covering the History & Social Studies department."
+  }
+}

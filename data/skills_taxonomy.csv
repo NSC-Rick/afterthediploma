@@ -69,3 +69,24 @@ diesel_systems,Diesel and heavy-equipment systems,adjacent,diesel|heavy equipmen
 fleet_maintenance,Fleet maintenance operations,adjacent,fleet maintenance|fleet service|fleet vehicle,false,automotive
 mechanical_diagnosis,Mechanical diagnosis and fault-finding,core,fault finding|diagnos|troubleshoot|root cause,false,automotive
 automotive_systems,Automotive systems and components,core,automotive systems|vehicle systems|automotive components,false,automotive
+historical_inquiry,Historical inquiry and question formulation,core,historical inquiry|historical question|historiograph,false,humanities
+primary_source_interpretation,Primary-source interpretation,core,primary source|primary-source|original document|artifact analysis,false,humanities
+secondary_source_evaluation,Secondary-source evaluation,core,secondary source|secondary-source|source evaluation|source credibility,false,humanities
+evidence_argumentation,Evidence-based argumentation,core,argumentation|claim and evidence|evidence.based argument|thesis,false,humanities
+chronological_reasoning,Chronological and causal reasoning,core,chronolog|cause and effect|historical period,false,humanities
+geographic_reasoning,Geographic and spatial reasoning,core,geograph|spatial|maps?|terrain|waterway|climate,false,humanities
+cultural_interpretation,Cultural interpretation,core,culture|cultural|tradition|society,false,humanities
+economic_literacy,Economic systems literacy,supporting,econom|trade route|currenc|exports|market,false,humanities
+civic_literacy,Civic and institutional literacy,supporting,civic|constitution|government|institution|policy,false,humanities
+human_rights_awareness,Human rights awareness,supporting,human rights|genocide|rights case,false,humanities
+research_planning,Research planning,supporting,research topic|research plan|student.selected research|inquiry project,false,humanities
+critical_thinking,Critical thinking,transferable,critical thinking|analysis|evaluate|analyz,false,general
+oral_presentation,Oral presentation,transferable,oral presentation|public speaking|present,false,general
+information_literacy,Information literacy,transferable,information literacy|find and evaluate information|research skill,false,general
+community_engagement,Community engagement,transferable,community engagement|community project|community outreach,false,general
+self_direction,Self-direction,transferable,self.direction|independent work|student.selected,false,general
+digital_research_literacy,Digital research and data literacy,adjacent,digital research|data literacy|spreadsheet|database search,false,humanities
+gis_mapping,GIS and map visualization,adjacent,gis|geographic information|map visualization|geospatial,false,humanities
+archival_practices,Archival and records practices,adjacent,archiv|records management|cataloging|collection,false,humanities
+oral_history_interviewing,Interviewing and oral history,adjacent,oral history|interview|consent,false,humanities
+public_interpretation,Public interpretation and storytelling,adjacent,public interpretation|storytelling|exhibit|interpretive,false,humanities
