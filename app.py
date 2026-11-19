@@ -1036,12 +1036,32 @@ def page_curriculum():
 
     st.divider()
     st.toggle(
-        "Use AI extraction (OpenAI)",
+        "Enhance skill discovery with AI (OpenAI)",
         key="use_ai",
         disabled=not live,
         help="Requires OPENAI_API_KEY. Responses are JSON-schema validated; "
         "failures fall back to the deterministic engine. Changing this "
         "re-runs the analysis automatically.",
+    )
+    st.markdown("##### AI-Enhanced Curriculum Analysis")
+    st.caption(
+        "When enabled, AI reviews the curriculum to identify both explicitly "
+        "documented skills and additional competencies that may be developed "
+        "through the coursework but are not directly stated. AI can also "
+        "suggest adjacent skills that could broaden students' career "
+        "opportunities and inform future curriculum improvements."
+    )
+    st.markdown("**How Results Are Classified**")
+    c1, c2, c3 = st.columns(3)
+    c1.markdown(STATUS_CHIP["documented"], unsafe_allow_html=True)
+    c1.caption("Skills supported by the curriculum.")
+    c2.markdown(STATUS_CHIP["inferred"], unsafe_allow_html=True)
+    c2.caption("Skills AI identifies as potentially developed through the coursework.")
+    c3.markdown(STATUS_CHIP["recommended_addition"], unsafe_allow_html=True)
+    c3.caption("Additional skills worth considering to expand career pathways.")
+    st.caption(
+        "AI-generated findings are intended to support exploration and "
+        "curriculum planning. They should be reviewed and validated by educators."
     )
     if live:
         if st.button("Test OpenAI connection", key="m1-aitest"):
@@ -1424,8 +1444,9 @@ def page_compare():
 
     if a["ai_status"] != "ok":
         msgs = {
-            "disabled": "AI enhancement is **off** — enable 'Use AI extraction' in "
-            "Module 1 (or below) and the comparison appears automatically.",
+            "disabled": "AI enhancement is **off** — enable 'Enhance skill "
+            "discovery with AI' in Module 1 (or below) and the comparison "
+            "appears automatically.",
             "unavailable": "No OPENAI_API_KEY is configured — AI enhancement cannot run. "
             "Deterministic results are shown below.",
             "error": f"AI enhancement **failed** ({a.get('ai_error')}). Deterministic "
