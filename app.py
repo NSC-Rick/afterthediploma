@@ -1385,7 +1385,7 @@ def page_recommendations():
         for _, r in sub.iterrows():
             with st.expander(
                 f"{r['recommendation']} — strengthens {r['n_pathways'] or 'multiple'} pathway(s)",
-                expanded=(group == "Quick wins"),
+                expanded=False,
             ):
                 st.markdown(f"**Skill gap addressed:** {r['gap_addressed']}")
                 st.markdown(f"**Pathways strengthened:** {r['pathways_strengthened']}")
